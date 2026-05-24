@@ -1,6 +1,7 @@
 import "./index.css";
 import { Composition, getStaticFiles } from "remotion";
 import { AIVideo, aiVideoSchema } from "./components/AIVideo";
+import { PromoVideo, PROMO_DURATION } from "./components/PromoVideo";
 import { FPS, INTRO_DURATION } from "./lib/constants";
 import { getTimelinePath, loadTimelineFromFile } from "./lib/utils";
 
@@ -12,6 +13,16 @@ export const RemotionRoot: React.FC = () => {
 
   return (
     <>
+      <Composition
+        id="MontesPatrolPromo"
+        component={PromoVideo}
+        fps={FPS}
+        width={1080}
+        height={1920}
+        durationInFrames={PROMO_DURATION}
+        defaultProps={{}}
+      />
+
       {timelines.map((storyName) => (
         <Composition
           id={storyName}

@@ -1,4 +1,3 @@
-import { loadFont } from "@remotion/google-fonts/BreeSerif";
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
 import { z } from "zod";
@@ -12,7 +11,7 @@ export const aiVideoSchema = z.object({
   timeline: TimelineSchema.nullable(),
 });
 
-const { fontFamily } = loadFont();
+const fontFamily = "BreeSerif, serif";
 
 export const AIVideo: React.FC<z.infer<typeof aiVideoSchema>> = ({
   timeline,

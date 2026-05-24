@@ -1,1 +1,29 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "BreeSerif";
+  src: url("../public/fonts/BreeSerif.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "BebasNeue";
+  src: url("../public/fonts/BebasNeue.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Oswald";
+  src: url("../public/fonts/Oswald-Regular.woff2") format("woff2");
+  font-weight: 300 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Oswald";
+  src: url("../public/fonts/Oswald-Bold.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: normal;
+}

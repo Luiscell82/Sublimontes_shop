@@ -1,5 +1,3 @@
-import { loadFont as loadOswald } from "@remotion/google-fonts/Oswald";
-import { loadFont as loadBebasNeue } from "@remotion/google-fonts/BebasNeue";
 import {
   AbsoluteFill,
   Sequence,
@@ -8,8 +6,8 @@ import {
   useCurrentFrame,
 } from "remotion";
 
-const { fontFamily: oswald } = loadOswald();
-const { fontFamily: bebas } = loadBebasNeue();
+const oswald = "Oswald, sans-serif";
+const bebas = "BebasNeue, Impact, sans-serif";
 
 // Brand colors
 const NAVY = "#1B2A4A";

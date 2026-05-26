@@ -1,6 +1,5 @@
 import {
   AbsoluteFill,
-  Audio,
   Img,
   Sequence,
   interpolate,
@@ -506,8 +505,6 @@ const OutroScene = () => {
 // ── Root ──────────────────────────────────────────────────────────────────────
 export const PromoVideo: React.FC = () => (
   <AbsoluteFill>
-    <Audio src={staticFile("audio/bg-music.wav")} startFrom={0} volume={0.7} />
-
     <Sequence from={T.intro[0]}    durationInFrames={T.intro[1]    - T.intro[0]}>    <IntroScene /> </Sequence>
     <Sequence from={T.tag[0]}      durationInFrames={T.tag[1]      - T.tag[0]}>      <TaglineScene /></Sequence>
     <Sequence from={T.car1[0]}     durationInFrames={T.car1[1]     - T.car1[0]}>     <Car1Scene />  </Sequence>

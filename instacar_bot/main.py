@@ -4,13 +4,15 @@ Bot Instacar — monitorea lotes nuevos con bajo kilometraje y buen precio.
 Envía alertas por Telegram cuando encuentra buenas oportunidades.
 
 Uso:
-    python main.py            # Corre el bot en bucle continuo
+    python main.py            # Corre el bot + API REST para la app Flutter
     python main.py --test     # Prueba la conexión de Telegram y hace un scrape único
     python main.py --stats    # Muestra estadísticas de lotes vistos
+    python main.py --no-api   # Corre solo el bot sin el servidor API
 """
 import argparse
 import logging
 import sys
+import threading
 import time
 from datetime import datetime
 
@@ -68,20 +70,21 @@ def run_once() -> tuple[int, int]:
     return len(raw_lots), new_count
 
 
-def run_loop():
+def run_loop(bot_running: threading.Event):
     interval_secs = config.CHECK_INTERVAL_MINUTES * 60
     logger.info(f"Bot iniciado — revisando cada {config.CHECK_INTERVAL_MINUTES} minutos")
     notifier.notify_startup()
 
     while True:
-        try:
-            run_once()
-        except Exception as e:
-            logger.error(f"Error inesperado en el ciclo: {e}", exc_info=True)
-            notifier.notify_error(str(e))
-
-        next_run = datetime.now().strftime("%H:%M:%S")
-        logger.info(f"Esperando {config.CHECK_INTERVAL_MINUTES} min... (próxima revisión)")
+        if bot_running.is_set():
+            try:
+                run_once()
+            except Exception as e:
+                logger.error(f"Error inesperado en el ciclo: {e}", exc_info=True)
+                notifier.notify_error(str(e))
+            logger.info(f"Esperando {config.CHECK_INTERVAL_MINUTES} min... (próxima revisión)")
+        else:
+            logger.info("Bot pausado — esperando señal de inicio...")
         time.sleep(interval_secs)
 
 
@@ -117,8 +120,9 @@ def cmd_stats():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Bot de selección de lotes para Instacar")
-    parser.add_argument("--test",  action="store_true", help="Prueba configuración y hace un scrape único")
-    parser.add_argument("--stats", action="store_true", help="Muestra estadísticas de lotes vistos")
+    parser.add_argument("--test",   action="store_true", help="Prueba configuración y hace un scrape único")
+    parser.add_argument("--stats",  action="store_true", help="Muestra estadísticas de lotes vistos")
+    parser.add_argument("--no-api", action="store_true", help="Corre solo el bot sin el servidor API REST")
     args = parser.parse_args()
 
     database.init_db()
@@ -128,4 +132,14 @@ if __name__ == "__main__":
     elif args.stats:
         cmd_stats()
     else:
-        run_loop()
+        bot_running = threading.Event()
+        bot_running.set()
+
+        if not args.no_api:
+            import api as api_module
+            api_module.set_bot_ref(bot_running)
+            api_port = int(config.API_PORT) if hasattr(config, "API_PORT") else 8765
+            api_module.start_api_server(port=api_port)
+            logger.info(f"App Flutter puede conectarse en http://<IP-de-este-PC>:{api_port}")
+
+        run_loop(bot_running)

@@ -28,6 +28,9 @@ BRANDS_PRIORITY = [b.strip().upper() for b in os.getenv("BRANDS_PRIORITY", "TOYO
 # Headless browser (set False to debug visually)
 HEADLESS = os.getenv("HEADLESS", "true").lower() == "true"
 
+# Puerto de la API REST para la app Flutter
+API_PORT = int(os.getenv("API_PORT", "8765"))
+
 def validate():
     errors = []
     if not TELEGRAM_TOKEN:

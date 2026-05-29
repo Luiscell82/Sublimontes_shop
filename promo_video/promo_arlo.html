@@ -133,30 +133,61 @@
   .photo-panel img {
     width: 100%; height: 100%;
     object-fit: cover;
-    animation: photoZoom 10s ease-in-out both;
+    transform-origin: center center;
   }
-  /* Fallback when image is missing */
-  .photo-panel img[src="photo1.jpg"] { display: block; }
-  .photo-panel .img-fallback {
-    display: none;
-    width: 100%; height: 100%;
-    align-items: center; justify-content: center;
-    flex-direction: column; gap: 24px;
+  /* Ken Burns per scene */
+  .s2 .photo-panel img { animation: kenBurns1 10s ease-in-out both; }
+  .s3 .photo-panel img { animation: kenBurns2 10s ease-in-out both; }
+  .s7 .photo-panel img { animation: kenBurns3 10s ease-in-out both; }
+  @keyframes kenBurns1 {
+    from { transform: scale(1.12) translate(-3%, 2%); }
+    to   { transform: scale(1.0)  translate(0%, 0%); }
   }
-  .photo-panel img:not([src]),
-  .photo-panel img[src=""] {
-    display: none;
+  @keyframes kenBurns2 {
+    from { transform: scale(1.0)  translate(0%, 0%); }
+    to   { transform: scale(1.1)  translate(2%, -3%); }
   }
-  @keyframes photoZoom {
-    from { transform: scale(1.08); }
-    to   { transform: scale(1.0);  }
+  @keyframes kenBurns3 {
+    from { transform: scale(1.08) translate(2%, -2%); }
+    to   { transform: scale(1.0)  translate(-1%, 1%); }
   }
+
+  /* Cinematic overlay stack */
   .photo-panel::after {
     content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent 40%, #060610 100%),
-                linear-gradient(0deg, rgba(0,0,0,.4) 0%, transparent 50%);
+    position: absolute; inset: 0; z-index: 2;
+    background:
+      linear-gradient(90deg, transparent 45%, #060610 100%),
+      linear-gradient(0deg,  rgba(0,0,0,.55) 0%, transparent 40%),
+      linear-gradient(180deg, rgba(0,0,0,.3) 0%, transparent 25%);
   }
+  /* Vignette */
+  .photo-panel::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: radial-gradient(ellipse at 50% 50%,
+      transparent 40%, rgba(0,0,0,.65) 100%);
+  }
+  /* Color grade + grain overlay */
+  .cine-grade {
+    position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background:
+      linear-gradient(135deg, rgba(0,20,40,.18) 0%, rgba(40,10,0,.12) 100%);
+    mix-blend-mode: multiply;
+  }
+  .grain {
+    position: absolute; inset: 0; z-index: 5; pointer-events: none;
+    opacity: .06;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 150px 150px;
+  }
+  /* Letterbox bars */
+  .letterbox-top, .letterbox-bot {
+    position: absolute; left: 0; right: 0; height: 60px;
+    background: #000; z-index: 6; pointer-events: none;
+  }
+  .letterbox-top { top: 0; }
+  .letterbox-bot { bottom: 0; }
 
   /* CSS visual panels (used when no photo) */
   .vis-panel {
@@ -509,16 +540,11 @@
 <!-- ═══ S2 — PHOTO 1: BOX FRONT ════════════════════ -->
 <div class="scene s2 photo-scene">
   <div class="photo-panel">
-    <div class="vis-panel vis1">
-      <div style="position:relative">
-        <div class="css-doorbell">
-          <div class="css-lens"></div>
-          <div class="css-ir"></div>
-          <div class="css-btn">🔔</div>
-        </div>
-        <div class="css-badge">2K</div>
-      </div>
-    </div>
+    <img src="photo1.jpg" alt="Arlo Video Doorbell box">
+    <div class="cine-grade"></div>
+    <div class="grain"></div>
+    <div class="letterbox-top"></div>
+    <div class="letterbox-bot"></div>
   </div>
   <div class="photo-text">
     <div class="pt-label">What's in the box</div>
@@ -541,12 +567,11 @@
 <!-- ═══ S3 — PHOTO 2: UNBOXING ══════════════════════ -->
 <div class="scene s3 photo-scene">
   <div class="photo-panel">
-    <div class="vis-panel vis2">
-      <div class="css-box">
-        <div class="css-blue-tab"></div>
-        <div class="css-charge">CHARGE<br>BEFORE<br>SETUP</div>
-      </div>
-    </div>
+    <img src="photo2.jpg" alt="Arlo unboxing">
+    <div class="cine-grade"></div>
+    <div class="grain"></div>
+    <div class="letterbox-top"></div>
+    <div class="letterbox-bot"></div>
   </div>
   <div class="photo-text">
     <div class="pt-label">Unboxing experience</div>
@@ -602,14 +627,11 @@
 <!-- ═══ S7 — PHOTO 3: ACCESSORIES ═══════════════════ -->
 <div class="scene s7 photo-scene">
   <div class="photo-panel">
-    <div class="vis-panel vis3">
-      <div class="css-accessories">
-        <div class="css-acc-item"><div class="acc-icon">🔩</div><div class="acc-name">Mounting Bracket</div></div>
-        <div class="css-acc-item"><div class="acc-icon">🔧</div><div class="acc-name">Screws & Anchors</div></div>
-        <div class="css-acc-item"><div class="acc-icon">📋</div><div class="acc-name">Quick Start Guide</div></div>
-        <div class="css-acc-item"><div class="acc-icon">🔑</div><div class="acc-name">Security Tool</div></div>
-      </div>
-    </div>
+    <img src="photo3.jpg" alt="Arlo accessories">
+    <div class="cine-grade"></div>
+    <div class="grain"></div>
+    <div class="letterbox-top"></div>
+    <div class="letterbox-bot"></div>
   </div>
   <div class="photo-text">
     <div class="pt-label">Complete package</div>

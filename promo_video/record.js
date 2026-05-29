@@ -3,7 +3,7 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const FFMPEG = '/opt/pw-browsers/ffmpeg-1011/ffmpeg-linux';
+const FFMPEG = '/usr/local/lib/python3.11/dist-packages/imageio_ffmpeg/binaries/ffmpeg-linux-x86_64-v7.0.2';
 const HTML_PATH = path.resolve(__dirname, 'promo_arlo.html');
 const OUT_DIR = __dirname;
 const WEBM_OUT = path.join(OUT_DIR, 'promo_arlo.webm');

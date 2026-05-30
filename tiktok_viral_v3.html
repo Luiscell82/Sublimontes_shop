@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>TikTok – App que genera dinero</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#111;display:flex;justify-content:center;align-items:center;min-height:100vh;overflow:hidden;}
+
+#phone{
+  width:390px;height:844px;
+  position:relative;overflow:hidden;
+  background:#0d0d0d;
+  font-family:'Arial Black',Arial,sans-serif;
+}
+
+/* ══ PROGRESS ══ */
+#prog{
+  position:absolute;top:14px;left:20px;right:20px;
+  display:flex;gap:4px;z-index:900;
+}
+.ps{flex:1;height:3px;background:rgba(255,255,255,0.2);border-radius:3px;overflow:hidden;}
+.pf{height:100%;width:0;background:#fff;border-radius:3px;}
+
+/* ══ FLASH ══ */
+#flash{position:absolute;inset:0;z-index:950;opacity:0;pointer-events:none;}
+
+/* ══ SCENES ══ */
+.sc{position:absolute;inset:0;opacity:0;pointer-events:none;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+.sc.on{opacity:1;pointer-events:auto;}
+
+/* ════ S0: HOOK ════ */
+#s0{background:#000;}
+.s0-bg{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 50%, #0a1a00 0%, #000 100%);
+}
+.s0-tag{
+  font-size:11px;letter-spacing:5px;color:#5a5a5a;
+  text-transform:uppercase;margin-bottom:20px;
+  opacity:0;transform:translateY(16px);transition:.4s;
+}
+.s0-big{
+  font-size:52px;font-weight:900;color:#fff;
+  text-align:center;line-height:0.95;
+  text-transform:uppercase;
+  opacity:0;transform:translateY(24px);transition:.5s .2s;
+}
+.s0-big em{
+  font-style:normal;
+  color:#b0ff00;
+  text-shadow:0 0 40px #b0ff0088;
+  display:block;font-size:68px;
+}
+.s0-sub{
+  margin-top:22px;font-size:20px;color:#bbb;font-weight:700;
+  text-align:center;line-height:1.4;
+  opacity:0;transform:translateY(16px);transition:.4s .5s;
+}
+.s0-sub strong{color:#fff;}
+.s0-arrow{
+  margin-top:36px;font-size:40px;
+  opacity:0;transition:.4s .8s;
+  animation:bob .9s ease-in-out infinite alternate;
+}
+@keyframes bob{from{transform:translateY(0);}to{transform:translateY(12px);}}
+.show{opacity:1!important;transform:none!important;}
+
+/* ════ S1: EL DESCUBRIMIENTO ════ */
+#s1{background:linear-gradient(180deg,#050505 0%,#0a0f00 100%);}
+.disc-eyebrow{font-size:12px;letter-spacing:4px;color:#6a6a6a;text-transform:uppercase;margin-bottom:16px;}
+.disc-title{font-size:32px;font-weight:900;color:#fff;text-align:center;line-height:1.1;margin-bottom:20px;}
+.disc-title span{color:#b0ff00;}
+
+/* notification card */
+.notif{
+  width:330px;
+  background:#1a1a1a;
+  border:1.5px solid #2a2a2a;
+  border-radius:18px;
+  padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:12px;
+  opacity:0;transform:translateX(50px);
+  transition:opacity .4s,transform .4s;
+  box-shadow:0 4px 30px rgba(0,0,0,0.6);
+}
+.notif.on{opacity:1;transform:translateX(0);}
+.notif-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-title{font-size:14px;font-weight:900;color:#fff;margin-bottom:2px;}
+.notif-desc{font-size:12px;color:#888;}
+.notif-amount{font-size:18px;font-weight:900;color:#b0ff00;flex-shrink:0;}
+.notif-time{font-size:10px;color:#555;margin-top:4px;}
+
+.disc-sub{
+  margin-top:8px;font-size:15px;color:#666;
+  text-align:center;font-weight:700;
+}
+.disc-sub strong{color:#b0ff00;}
+
+/* ════ S2: LA APP ════ */
+#s2{background:#000;}
+
+.app-label{font-size:11px;letter-spacing:5px;color:#555;text-transform:uppercase;margin-bottom:12px;}
+.app-title{font-size:30px;font-weight:900;color:#fff;text-align:center;margin-bottom:20px;line-height:1.1;}
+.app-title span{color:#b0ff00;}
+
+/* phone mockup */
+.mockup{
+  width:200px;height:360px;
+  background:#111;
+  border:2.5px solid #222;
+  border-radius:32px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 60px rgba(176,255,0,0.08), 0 20px 60px rgba(0,0,0,0.8);
+}
+.mk-notch{
+  width:80px;height:14px;background:#000;
+  border-radius:0 0 14px 14px;
+  position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;
+}
+.mk-screen{
+  position:absolute;inset:0;
+  background:#0d0d0d;
+  display:flex;flex-direction:column;padding:22px 8px 10px;overflow:hidden;
+}
+.mk-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0 2px;margin-bottom:10px;
+}
+.mk-hlogo{font-size:11px;font-weight:900;color:#b0ff00;letter-spacing:1px;}
+.mk-hright{display:flex;gap:8px;font-size:14px;}
+.mk-card{
+  background:#1a1a1a;border:1px solid #222;
+  border-radius:10px;padding:8px;margin-bottom:7px;
+  display:flex;align-items:center;gap:8px;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .3s,transform .3s;
+}
+.mk-card.on{opacity:1;transform:translateY(0);}
+.mk-thumb{width:34px;height:34px;border-radius:7px;flex-shrink:0;}
+.mk-info{flex:1;min-width:0;}
+.mk-name{font-size:8px;font-weight:900;color:#eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mk-price{font-size:9px;color:#b0ff00;font-weight:900;margin-top:2px;}
+.mk-status{font-size:7px;padding:2px 6px;border-radius:4px;background:#1e2a0a;color:#b0ff00;border:1px solid #2a3a0a;flex-shrink:0;}
+
+.mk-sale-badge{
+  position:absolute;bottom:14px;left:8px;right:8px;
+  background:linear-gradient(90deg,#b0ff00,#88cc00);
+  border-radius:8px;padding:7px 10px;
+  display:flex;align-items:center;gap:6px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity .4s,transform .4s;
+}
+.mk-sale-badge.on{opacity:1;transform:translateY(0);}
+.mk-sale-text{font-size:9px;font-weight:900;color:#000;}
+
+/* ════ S3: CUÁNTO PUEDES GANAR ════ */
+#s3{background:linear-gradient(180deg,#050505 0%,#030a00 100%);}
+
+.earn-title{font-size:28px;font-weight:900;color:#fff;text-align:center;margin-bottom:6px;text-transform:uppercase;}
+.earn-title span{color:#b0ff00;}
+.earn-sub{font-size:14px;color:#666;text-align:center;margin-bottom:24px;}
+
+.calc-wrap{width:330px;background:#111;border:1px solid #1e1e1e;border-radius:22px;padding:22px;margin-bottom:16px;}
+.calc-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #1a1a1a;}
+.calc-row:last-child{border-bottom:none;}
+.calc-label{font-size:13px;color:#666;font-weight:700;}
+.calc-val{font-size:16px;font-weight:900;color:#fff;}
+.calc-val.green{color:#b0ff00;}
+.calc-val.big{font-size:28px;color:#b0ff00;text-shadow:0 0 20px #b0ff0055;}
+
+.calc-row.total{margin-top:4px;}
+
+.progress-rows{width:330px;display:flex;flex-direction:column;gap:10px;}
+.prow{opacity:0;transform:translateX(-20px);transition:opacity .35s,transform .35s;}
+.prow.on{opacity:1;transform:translateX(0);}
+.prow-top{display:flex;justify-content:space-between;margin-bottom:5px;}
+.prow-label{font-size:12px;color:#888;font-weight:700;}
+.prow-val{font-size:12px;color:#b0ff00;font-weight:900;}
+.prow-bar{height:6px;background:#1a1a1a;border-radius:6px;overflow:hidden;}
+.prow-fill{height:100%;background:linear-gradient(90deg,#b0ff00,#44cc00);border-radius:6px;width:0;transition:width 1.2s cubic-bezier(.25,1,.5,1);}
+
+/* ════ S4: CÓMO EMPEZAR ════ */
+#s4{background:#000;}
+.how-title{font-size:30px;font-weight:900;color:#fff;text-transform:uppercase;text-align:center;margin-bottom:6px;}
+.how-title span{color:#b0ff00;}
+.how-sub{font-size:14px;color:#555;text-align:center;margin-bottom:26px;font-weight:700;}
+
+.step{
+  width:330px;
+  display:flex;align-items:center;gap:16px;
+  padding:14px 18px;
+  background:#111;border:1px solid #1e1e1e;
+  border-radius:16px;margin-bottom:10px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .4s,transform .4s;
+}
+.step.on{opacity:1;transform:translateY(0);}
+.step-n{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,#b0ff00,#44cc00);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:900;color:#000;flex-shrink:0;
+}
+.step-body{}
+.step-t{font-size:15px;font-weight:900;color:#fff;}
+.step-d{font-size:12px;color:#555;margin-top:2px;font-weight:700;}
+
+.how-badge{
+  width:330px;
+  background:linear-gradient(90deg,rgba(176,255,0,0.1),rgba(68,204,0,0.05));
+  border:1px solid rgba(176,255,0,0.25);
+  border-radius:14px;padding:14px 18px;
+  text-align:center;
+  opacity:0;transition:opacity .4s .1s;
+}
+.how-badge.on{opacity:1;}
+.how-badge-text{font-size:16px;font-weight:900;color:#b0ff00;}
+.how-badge-sub{font-size:12px;color:#666;margin-top:4px;}
+
+/* ════ S5: PRUEBA SOCIAL ════ */
+#s5{background:#050505;}
+.proof-title{font-size:28px;font-weight:900;color:#fff;text-align:center;text-transform:uppercase;margin-bottom:20px;line-height:1.1;}
+.proof-title span{color:#b0ff00;}
+
+.testi{
+  width:330px;background:#111;border:1px solid #1e1e1e;
+  border-radius:18px;padding:18px;margin-bottom:10px;
+  opacity:0;transform:scale(.95);
+  transition:opacity .4s,transform .4s;
+}
+.testi.on{opacity:1;transform:scale(1);}
+.testi-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.testi-av{width:40px;height:40px;border-radius:50%;}
+.testi-name{font-size:14px;font-weight:900;color:#fff;}
+.testi-role{font-size:11px;color:#555;margin-top:1px;}
+.testi-stars{margin-left:auto;color:#b0ff00;font-size:14px;letter-spacing:1px;}
+.testi-body{font-size:13px;color:#888;line-height:1.5;}
+.testi-body strong{color:#b0ff00;}
+.testi-result{
+  margin-top:10px;
+  display:inline-block;
+  background:rgba(176,255,0,0.08);
+  border:1px solid rgba(176,255,0,0.2);
+  border-radius:50px;padding:5px 14px;
+  font-size:12px;font-weight:900;color:#b0ff00;
+}
+
+.counter-strip{
+  width:330px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  gap:8px;margin-top:8px;
+}
+.cs-box{
+  background:#111;border:1px solid #1e1e1e;
+  border-radius:12px;padding:12px 8px;text-align:center;
+}
+.cs-num{font-size:22px;font-weight:900;color:#b0ff00;}
+.cs-lbl{font-size:10px;color:#444;margin-top:2px;font-weight:700;}
+
+/* ════ S6: CTA FINAL ════ */
+#s6{background:#000;}
+.cta-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 60% at 50% 50%,#0d1a00 0%,#000 100%);}
+
+.cta-kicker{font-size:12px;letter-spacing:4px;color:#555;text-transform:uppercase;margin-bottom:16px;}
+.cta-title{font-size:42px;font-weight:900;color:#fff;text-align:center;text-transform:uppercase;line-height:1;margin-bottom:6px;}
+.cta-title em{font-style:normal;color:#b0ff00;display:block;}
+.cta-desc{font-size:16px;color:#777;text-align:center;margin-bottom:30px;line-height:1.5;}
+.cta-desc strong{color:#fff;}
+
+.cta-btn{
+  background:linear-gradient(90deg,#b0ff00,#44cc00);
+  color:#000;font-size:22px;font-weight:900;
+  padding:18px 48px;border-radius:50px;
+  text-transform:uppercase;letter-spacing:1px;
+  margin-bottom:14px;text-align:center;
+  animation:glow-btn 1s infinite alternate;
+}
+@keyframes glow-btn{
+  from{box-shadow:0 0 20px rgba(176,255,0,0.3);}
+  to{box-shadow:0 0 60px rgba(176,255,0,0.7),0 0 100px rgba(176,255,0,0.2);}
+}
+.cta-bio{font-size:15px;color:#444;font-weight:700;text-align:center;}
+.cta-bio span{color:#b0ff00;}
+
+/* confetti */
+.cf{position:absolute;width:7px;height:7px;border-radius:2px;animation:cf-fall linear forwards;pointer-events:none;z-index:800;}
+@keyframes cf-fall{
+  0%{transform:translateY(-30px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(900px) rotate(540deg);opacity:0;}
+}
+</style>
+</head>
+<body>
+<div id="phone">
+  <div id="flash"></div>
+  <div id="prog">
+    <div class="ps"><div class="pf" id="p0"></div></div>
+    <div class="ps"><div class="pf" id="p1"></div></div>
+    <div class="ps"><div class="pf" id="p2"></div></div>
+    <div class="ps"><div class="pf" id="p3"></div></div>
+    <div class="ps"><div class="pf" id="p4"></div></div>
+    <div class="ps"><div class="pf" id="p5"></div></div>
+  </div>
+
+  <!-- ══ S0 HOOK ══ -->
+  <div class="sc on" id="s0">
+    <div class="s0-bg"></div>
+    <div class="s0-tag" id="i00">APP REAL · SIN INVERSIÓN</div>
+    <div class="s0-big" id="i01">
+      Esta app me<br>hizo ganar
+      <em id="money-hook">$0</em>
+      esta semana
+    </div>
+    <div class="s0-sub" id="i02">Y funciona para <strong>cualquiera</strong><br>con un celular 📱</div>
+    <div class="s0-arrow show" id="i03">👇</div>
+  </div>
+
+  <!-- ══ S1 DESCUBRIMIENTO ══ -->
+  <div class="sc" id="s1">
+    <div class="disc-eyebrow">Lo encontré por accidente...</div>
+    <div class="disc-title">Empecé a recibir<br>esto en mi celular 👇<br><span>una y otra vez</span></div>
+    <div class="notif" id="n0">
+      <div class="notif-icon" style="background:#1a2a00">💰</div>
+      <div class="notif-body">
+        <div class="notif-title">¡Nueva venta!</div>
+        <div class="notif-desc">Blusa talla M · Pago recibido</div>
+        <div class="notif-time">Hace 2 min</div>
+      </div>
+      <div class="notif-amount">+$350</div>
+    </div>
+    <div class="notif" id="n1">
+      <div class="notif-icon" style="background:#001a2a">💬</div>
+      <div class="notif-body">
+        <div class="notif-title">Mensaje de cliente</div>
+        <div class="notif-desc">¿Tienes en rojo también?</div>
+        <div class="notif-time">Hace 5 min</div>
+      </div>
+      <div class="notif-amount" style="color:#4488ff">+1</div>
+    </div>
+    <div class="notif" id="n2">
+      <div class="notif-icon" style="background:#1a1a00">⭐</div>
+      <div class="notif-body">
+        <div class="notif-title">¡Nuevo pedido!</div>
+        <div class="notif-desc">Tenis · Talla 27 · Envío acordado</div>
+        <div class="notif-time">Hace 12 min</div>
+      </div>
+      <div class="notif-amount">+$890</div>
+    </div>
+    <div class="disc-sub">Y todo desde <strong>mi celular</strong> ✅</div>
+  </div>
+
+  <!-- ══ S2 LA APP ══ -->
+  <div class="sc" id="s2">
+    <div class="app-label">Así se ve por dentro</div>
+    <div class="app-title">Tu propia tienda<br><span>en el celular</span></div>
+    <div class="mockup">
+      <div class="mk-notch"></div>
+      <div class="mk-screen">
+        <div class="mk-header">
+          <div class="mk-hlogo">MI TIENDA</div>
+          <div class="mk-hright">🔔 💬</div>
+        </div>
+        <div class="mk-card" id="c0">
+          <div class="mk-thumb" style="background:linear-gradient(135deg,#ff44aa,#cc0044)"></div>
+          <div class="mk-info"><div class="mk-name">Blusa bordada rosa</div><div class="mk-price">$350 MXN</div></div>
+          <div class="mk-status">● Activo</div>
+        </div>
+        <div class="mk-card" id="c1">
+          <div class="mk-thumb" style="background:linear-gradient(135deg,#4488ff,#0033cc)"></div>
+          <div class="mk-info"><div class="mk-name">Tenis Nike Air Max</div><div class="mk-price">$890 MXN</div></div>
+          <div class="mk-status">✓ Vendido</div>
+        </div>
+        <div class="mk-card" id="c2">
+          <div class="mk-thumb" style="background:linear-gradient(135deg,#ffaa00,#cc6600)"></div>
+          <div class="mk-info"><div class="mk-name">Bolsa coach piel</div><div class="mk-price">$1,200 MXN</div></div>
+          <div class="mk-status">● Activo</div>
+        </div>
+        <div class="mk-card" id="c3">
+          <div class="mk-thumb" style="background:linear-gradient(135deg,#b0ff00,#44cc00)"></div>
+          <div class="mk-info"><div class="mk-name">Perfume 100ml</div><div class="mk-price">$650 MXN</div></div>
+          <div class="mk-status">✓ Vendido</div>
+        </div>
+        <div class="mk-card" id="c4">
+          <div class="mk-thumb" style="background:linear-gradient(135deg,#aa44ff,#6600cc)"></div>
+          <div class="mk-info"><div class="mk-name">Aretes plata 925</div><div class="mk-price">$280 MXN</div></div>
+          <div class="mk-status">● Activo</div>
+        </div>
+        <div class="mk-sale-badge" id="csale">
+          <span style="font-size:12px">🎉</span>
+          <span class="mk-sale-text">¡Venta confirmada! +$890</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S3 CUÁNTO PUEDES GANAR ══ -->
+  <div class="sc" id="s3">
+    <div class="earn-title">¿Cuánto puedes<br><span>ganar al mes?</span></div>
+    <div class="earn-sub">Con solo 10 ventas pequeñas</div>
+    <div class="calc-wrap">
+      <div class="calc-row"><span class="calc-label">Ventas × semana</span><span class="calc-val" id="cv0">0</span></div>
+      <div class="calc-row"><span class="calc-label">Precio promedio</span><span class="calc-val green" id="cv1">$0</span></div>
+      <div class="calc-row"><span class="calc-label">× 4 semanas</span><span class="calc-val">× 4</span></div>
+      <div class="calc-row total" style="border-top:1px solid #2a2a2a;margin-top:4px;padding-top:16px;">
+        <span class="calc-label" style="color:#fff;font-size:15px;">TOTAL AL MES</span>
+        <span class="calc-val big" id="cv2">$0</span>
+      </div>
+    </div>
+    <div class="progress-rows">
+      <div class="prow" id="pr0">
+        <div class="prow-top"><span class="prow-label">Ropa y accesorios</span><span class="prow-val">$4,200/mes</span></div>
+        <div class="prow-bar"><div class="prow-fill" id="pf0" style="width:0"></div></div>
+      </div>
+      <div class="prow" id="pr1">
+        <div class="prow-top"><span class="prow-label">Calzado</span><span class="prow-val">$6,800/mes</span></div>
+        <div class="prow-bar"><div class="prow-fill" id="pf1" style="width:0"></div></div>
+      </div>
+      <div class="prow" id="pr2">
+        <div class="prow-top"><span class="prow-label">Electrónica</span><span class="prow-val">$9,500/mes</span></div>
+        <div class="prow-bar"><div class="prow-fill" id="pf2" style="width:0"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S4 CÓMO EMPEZAR ══ -->
+  <div class="sc" id="s4">
+    <div class="how-title">Empieza <span>hoy</span></div>
+    <div class="how-sub">3 pasos · menos de 5 minutos</div>
+    <div class="step" id="st0">
+      <div class="step-n">1</div>
+      <div class="step-body">
+        <div class="step-t">Descarga la app</div>
+        <div class="step-d">Gratis · Android e iOS</div>
+      </div>
+    </div>
+    <div class="step" id="st1">
+      <div class="step-n">2</div>
+      <div class="step-body">
+        <div class="step-t">Sube tus productos</div>
+        <div class="step-d">Foto · precio · listo ✅</div>
+      </div>
+    </div>
+    <div class="step" id="st2">
+      <div class="step-n">3</div>
+      <div class="step-body">
+        <div class="step-t">Comparte tu link</div>
+        <div class="step-d">Clientes te contactan solos</div>
+      </div>
+    </div>
+    <div class="how-badge" id="hwb">
+      <div class="how-badge-text">🔒 Sin inventario · Sin cuotas × venta</div>
+      <div class="how-badge-sub">Solo pagas una membresía única para publicar</div>
+    </div>
+  </div>
+
+  <!-- ══ S5 TESTIMONIOS ══ -->
+  <div class="sc" id="s5">
+    <div class="proof-title">Gente real.<br><span>Resultados reales.</span></div>
+    <div class="testi" id="ts0">
+      <div class="testi-top">
+        <div class="testi-av" style="background:linear-gradient(135deg,#ff44aa,#ff0044);border-radius:50%;width:40px;height:40px;"></div>
+        <div><div class="testi-name">Karla M.</div><div class="testi-role">Mamá de 2, vende desde casa</div></div>
+        <div class="testi-stars">★★★★★</div>
+      </div>
+      <div class="testi-body">"Empecé vendiendo ropa de mis hijos. En el <strong>primer mes</strong> saqué para la despensa y la renta."</div>
+      <div class="testi-result">+$3,800 primer mes 💚</div>
+    </div>
+    <div class="testi" id="ts1">
+      <div class="testi-top">
+        <div class="testi-av" style="background:linear-gradient(135deg,#4488ff,#0033cc);border-radius:50%;width:40px;height:40px;"></div>
+        <div><div class="testi-name">Diego R.</div><div class="testi-role">Estudiante universitario</div></div>
+        <div class="testi-stars">★★★★★</div>
+      </div>
+      <div class="testi-body">"Vendo sneakers y ropa de segunda. Ya no le pido $ a mis papás. <strong>Todo desde el celu.</strong>"</div>
+      <div class="testi-result">+$5,200 este mes 💚</div>
+    </div>
+    <div class="counter-strip">
+      <div class="cs-box"><div class="cs-num" id="cs0">0</div><div class="cs-lbl">Vendedores</div></div>
+      <div class="cs-box"><div class="cs-num" id="cs1">$0</div><div class="cs-lbl">En ventas</div></div>
+      <div class="cs-box"><div class="cs-num" id="cs2">0</div><div class="cs-lbl">Ciudades</div></div>
+    </div>
+  </div>
+
+  <!-- ══ S6 CTA ══ -->
+  <div class="sc" id="s6">
+    <div class="cta-bg"></div>
+    <div class="cta-kicker">No esperes más</div>
+    <div class="cta-title">Tu tienda<br><em>arranca HOY</em></div>
+    <div class="cta-desc">Vende lo que sea.<br>Desde donde estés.<br><strong>Con solo tu celular.</strong></div>
+    <div class="cta-btn">¡QUIERO VENDER! 🚀</div>
+    <div class="cta-bio">👆 Link en bio · <span>Empieza gratis</span></div>
+  </div>
+</div>
+
+<script>
+// ══ helpers ══
+const $ = id => document.getElementById(id);
+const delay = (fn, ms) => setTimeout(fn, ms);
+const show = el => { if(el){ el.classList.add('show'); } };
+
+function flash(col='rgba(176,255,0,0.15)'){
+  const f=$('flash');
+  f.style.background=col; f.style.opacity='1';
+  delay(()=>{ f.style.transition='opacity .35s'; f.style.opacity='0'; },60);
+  delay(()=>{ f.style.transition=''; },400);
+}
+
+function animNum(el, target, dur, pre='', suf='', fmt=false){
+  let t0=null;
+  const step=ts=>{
+    if(!t0)t0=ts;
+    const p=Math.min((ts-t0)/dur,1);
+    const e=1-Math.pow(1-p,3);
+    const v=Math.floor(e*target);
+    el.textContent=pre+(fmt?v.toLocaleString():v)+suf;
+    if(p<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function confetti(){
+  const cols=['#b0ff00','#fff','#4488ff','#ff44aa','#ffaa00'];
+  for(let i=0;i<50;i++){
+    const c=document.createElement('div');
+    c.className='cf';
+    c.style.cssText=`left:${Math.random()*100}%;top:-10px;background:${cols[~~(Math.random()*cols.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.8}s;`;
+    $('phone').appendChild(c);
+    delay(()=>c.remove(),4000);
+  }
+}
+
+// ══ scenes ══
+const SCENES=[
+  {id:'s0',dur:8000},
+  {id:'s1',dur:10000},
+  {id:'s2',dur:10000},
+  {id:'s3',dur:11000},
+  {id:'s4',dur:10000},
+  {id:'s5',dur:10000},
+  {id:'s6',dur:10000},
+];
+
+function onEnter(i){
+  switch(i){
+    case 0:
+      delay(()=>show($('i00')),150);
+      delay(()=>show($('i01')),400);
+      delay(()=>animNum($('money-hook'),3800,3000,'$','',true),600);
+      delay(()=>show($('i02')),1000);
+      break;
+    case 1:
+      delay(()=>$('n0').classList.add('on'),300);
+      delay(()=>$('n1').classList.add('on'),1400);
+      delay(()=>$('n2').classList.add('on'),2500);
+      break;
+    case 2:
+      ['c0','c1','c2','c3','c4'].forEach((id,j)=>delay(()=>$(id).classList.add('on'),400+j*350));
+      delay(()=>$('csale').classList.add('on'),2800);
+      break;
+    case 3:
+      delay(()=>animNum($('cv0'),10,1200,'','  artículos'),300);
+      delay(()=>animNum($('cv1'),500,1500,'$'),600);
+      delay(()=>animNum($('cv2'),20000,2500,'$','',true),900);
+      delay(()=>{
+        ['pr0','pr1','pr2'].forEach((id,j)=>delay(()=>$(id).classList.add('on'),j*200));
+        delay(()=>{ $('pf0').style.width='44%'; $('pf1').style.width='72%'; $('pf2').style.width='100%'; },200);
+      },2500);
+      break;
+    case 4:
+      ['st0','st1','st2'].forEach((id,j)=>delay(()=>$(id).classList.add('on'),300+j*400));
+      delay(()=>$('hwb').classList.add('on'),1800);
+      break;
+    case 5:
+      delay(()=>$('ts0').classList.add('on'),300);
+      delay(()=>$('ts1').classList.add('on'),1200);
+      delay(()=>{
+        animNum($('cs0'),527,2000);
+        animNum($('cs1'),183000,2500,'$','',true);
+        animNum($('cs2'),24,1500);
+      },2000);
+      break;
+    case 6:
+      confetti();
+      break;
+  }
+}
+
+// ══ loop ══
+let cur=0, t0=performance.now();
+function reset(i){
+  const el=$(SCENES[i].id);
+  el.querySelectorAll('.on').forEach(e=>e.classList.remove('on'));
+  el.querySelectorAll('.show').forEach(e=>e.classList.remove('show'));
+  el.querySelectorAll('.prow-fill').forEach(e=>{ e.style.transition='none'; e.style.width='0'; });
+  if(i===0){ $('money-hook').textContent='$0'; ['cv0','cv1','cv2'].forEach(id=>{ const e=$(id); if(e)e.textContent='0'; }); }
+}
+
+function nextScene(){
+  flash();
+  $(SCENES[cur].id).classList.remove('on');
+  reset(cur);
+  cur=(cur+1)%SCENES.length;
+  $(SCENES[cur].id).classList.add('on');
+  t0=performance.now();
+  onEnter(cur);
+}
+
+function loop(ts){
+  const elapsed=ts-t0;
+  const dur=SCENES[cur].dur;
+  document.querySelectorAll('.pf').forEach((f,i)=>{
+    f.style.width = i<cur?'100%': i===cur? Math.min(elapsed/dur*100,100)+'%':'0%';
+  });
+  if(elapsed>=dur) nextScene();
+  requestAnimationFrame(loop);
+}
+
+onEnter(0);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sublimontes Shop – TikTok Viral</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Arial Black', sans-serif;
+    overflow: hidden;
+  }
+
+  #screen {
+    width: 390px;
+    height: 844px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 0 60px rgba(255,0,80,0.4);
+  }
+
+  /* ──── SCENE BASE ──── */
+  .scene {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .scene.active { opacity: 1; pointer-events: auto; }
+
+  /* ──── SCENE 0 – HOOK ──── */
+  #s0 {
+    background: linear-gradient(160deg, #0a0a0a 0%, #1a0a2e 100%);
+  }
+  #s0 .glitch-wrap {
+    position: relative;
+    text-align: center;
+  }
+  #s0 .hook-text {
+    font-size: 42px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+  }
+  #s0 .hook-text span { color: #ff004d; }
+  #s0 .sub-hook {
+    margin-top: 18px;
+    font-size: 20px;
+    color: #ccc;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  #s0 .arrow-bounce {
+    margin-top: 40px;
+    font-size: 48px;
+    animation: bounce 0.8s infinite alternate;
+  }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(14px); } }
+
+  /* particles */
+  #particles { position: absolute; inset: 0; pointer-events: none; }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: particle-float linear infinite;
+  }
+  @keyframes particle-float {
+    0%   { transform: translateY(900px) scale(0); opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.9; }
+    100% { transform: translateY(-100px) scale(1.4); opacity: 0; }
+  }
+
+  /* ──── SCENE 1 – PROBLEMA ──── */
+  #s1 { background: linear-gradient(180deg, #1a0000 0%, #3d0000 100%); }
+  #s1 .problem-card {
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,0,60,.6);
+    border-radius: 24px;
+    padding: 36px 28px;
+    text-align: center;
+    width: 340px;
+  }
+  #s1 .problem-emoji { font-size: 72px; display: block; margin-bottom: 12px; }
+  #s1 .problem-title {
+    font-size: 32px;
+    color: #ff4466;
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  #s1 .problem-desc {
+    font-size: 18px;
+    color: #ddd;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  #s1 .pain-points {
+    margin-top: 22px;
+    list-style: none;
+    text-align: left;
+  }
+  #s1 .pain-points li {
+    color: #ffaabb;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  #s1 .pain-points li::before { content: "✗"; color: #ff003c; font-size: 20px; }
+
+  /* ──── SCENE 2 – SOLUCIÓN ──── */
+  #s2 { background: linear-gradient(160deg, #001a0a 0%, #002d1a 60%, #001a0a 100%); }
+  #s2 .solution-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #00ff88;
+    text-transform: uppercase;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    text-shadow: 0 0 20px #00ff88;
+  }
+  #s2 .feature-list { width: 340px; display: flex; flex-direction: column; gap: 14px; }
+  .feature-item {
+    background: rgba(0,255,136,0.07);
+    border: 1.5px solid rgba(0,255,136,0.3);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: translateX(-40px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .feature-item.show { opacity: 1; transform: translateX(0); }
+  .feature-item .fi-icon { font-size: 36px; flex-shrink: 0; }
+  .feature-item .fi-text { }
+  .feature-item .fi-title { font-size: 17px; font-weight: 900; color: #00ff88; }
+  .feature-item .fi-desc  { font-size: 13px; color: #aaffcc; margin-top: 2px; font-weight: 600; }
+
+  /* ──── SCENE 3 – MEMBRESÍA ──── */
+  #s3 { background: linear-gradient(160deg, #0a0020 0%, #1a0050 100%); }
+  #s3 .mem-title {
+    font-size: 24px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  #s3 .mem-title span { color: #bb88ff; }
+  #s3 .cards-wrap { display: flex; gap: 16px; width: 340px; }
+  .mem-card {
+    flex: 1;
+    border-radius: 20px;
+    padding: 22px 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .mem-card.free {
+    background: rgba(255,255,255,0.06);
+    border: 1.5px solid rgba(255,255,255,0.2);
+  }
+  .mem-card.premium {
+    background: linear-gradient(145deg, #5500cc, #9900ff);
+    border: 2px solid #bb88ff;
+    box-shadow: 0 0 30px rgba(153,0,255,0.5);
+    transform: scale(1.04);
+  }
+  .mem-card .badge {
+    position: absolute;
+    top: -1px; right: -1px;
+    background: #ffdd00;
+    color: #000;
+    font-size: 10px;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: 0 18px 0 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .mem-card .mc-icon { font-size: 42px; }
+  .mem-card .mc-name { font-size: 15px; font-weight: 900; color: #fff; margin: 8px 0 4px; text-transform: uppercase; }
+  .mem-card .mc-price { font-size: 24px; font-weight: 900; color: #ffdd00; }
+  .mem-card .mc-price small { font-size: 12px; color: rgba(255,255,255,0.7); display: block; }
+  .mem-card ul { list-style: none; margin-top: 12px; text-align: left; }
+  .mem-card ul li { font-size: 12px; color: rgba(255,255,255,0.85); padding: 3px 0; font-weight: 600; }
+  .mem-card.free ul li::before { content: "·  "; }
+  .mem-card.premium ul li::before { content: "✓  "; color: #ffdd00; }
+
+  /* ──── SCENE 4 – COMO GANAR DINERO ──── */
+  #s4 { background: linear-gradient(160deg, #001830 0%, #002850 100%); }
+  #s4 .earn-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  #s4 .earn-title span { color: #00e5ff; }
+  #s4 .earn-sub {
+    font-size: 15px;
+    color: #aaccff;
+    text-align: center;
+    margin-bottom: 28px;
+    font-weight: 600;
+  }
+  #s4 .steps { width: 340px; display: flex; flex-direction: column; gap: 12px; }
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .step-item.show { opacity: 1; transform: translateY(0); }
+  .step-num {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00e5ff, #0077ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; color: #000;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(0,229,255,0.4);
+  }
+  .step-text { }
+  .step-title { font-size: 16px; font-weight: 900; color: #00e5ff; }
+  .step-desc { font-size: 13px; color: #99ccff; font-weight: 600; }
+
+  /* ──── SCENE 5 – URGENCIA ──── */
+  #s5 { background: linear-gradient(160deg, #1a0a00 0%, #3d1800 100%); }
+  #s5 .urgency-wrap { text-align: center; }
+  #s5 .fire { font-size: 90px; display: block; animation: pulse 0.6s infinite alternate; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
+  #s5 .urgency-title {
+    font-size: 36px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    line-height: 1.1;
+    margin-top: 10px;
+  }
+  #s5 .urgency-title span { color: #ff6600; }
+  #s5 .counter-wrap { margin-top: 24px; }
+  #s5 .counter-label { font-size: 14px; color: #ffaa66; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+  #s5 .counter { font-size: 64px; font-weight: 900; color: #ff6600; font-variant-numeric: tabular-nums; text-shadow: 0 0 20px #ff6600; }
+  #s5 .urgency-cta {
+    margin-top: 24px;
+    background: linear-gradient(90deg, #ff6600, #ff0044);
+    color: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    padding: 16px 40px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: cta-glow 1s infinite alternate;
+  }
+  @keyframes cta-glow {
+    from { box-shadow: 0 0 20px #ff6600; }
+    to   { box-shadow: 0 0 50px #ff0044; }
+  }
+
+  /* ──── SCENE 6 – CTA FINAL ──── */
+  #s6 { background: linear-gradient(160deg, #0a0a0a 0%, #1a1a2e 100%); }
+  #s6 .logo-wrap { text-align: center; margin-bottom: 20px; }
+  #s6 .logo-icon { font-size: 80px; }
+  #s6 .logo-name {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+  #s6 .logo-name span { color: #ff004d; }
+  #s6 .final-msg {
+    font-size: 18px;
+    color: #ccc;
+    text-align: center;
+    line-height: 1.5;
+    font-weight: 600;
+    margin-bottom: 28px;
+    padding: 0 20px;
+  }
+  #s6 .final-msg strong { color: #fff; }
+  #s6 .cta-btn {
+    background: linear-gradient(90deg, #ff004d, #ff6600);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 900;
+    padding: 18px 50px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    animation: cta-glow 1s infinite alternate;
+    text-align: center;
+  }
+  #s6 .handle {
+    font-size: 16px;
+    color: #888;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+  #s6 .handle span { color: #ff004d; }
+
+  /* ──── PROGRESS BAR ──── */
+  #progress {
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 340px;
+    display: flex;
+    gap: 5px;
+    z-index: 100;
+  }
+  .prog-seg {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%;
+    background: #fff;
+    width: 0%;
+    border-radius: 3px;
+    transition: width linear;
+  }
+
+  /* ──── GLITCH OVERLAY ──── */
+  #glitch-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 200;
+    opacity: 0;
+  }
+  #glitch-overlay.flash {
+    animation: glitch-flash 0.25s forwards;
+  }
+  @keyframes glitch-flash {
+    0%   { opacity: 0; background: rgba(255,255,255,0.15); }
+    30%  { opacity: 1; }
+    60%  { opacity: 0.5; background: rgba(255,0,77,0.2); }
+    100% { opacity: 0; }
+  }
+
+  /* ──── TEXT ANIMATIONS ──── */
+  .slide-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+  .slide-up.show { opacity: 1; transform: translateY(0); }
+
+  /* ──── MONEY RAIN ──── */
+  .money {
+    position: absolute;
+    font-size: 28px;
+    animation: money-fall linear infinite;
+    pointer-events: none;
+  }
+  @keyframes money-fall {
+    0%   { transform: translateY(-60px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(900px) rotate(360deg); opacity: 0.3; }
+  }
+</style>
+</head>
+<body>
+<div id="screen">
+
+  <!-- Progress bar -->
+  <div id="progress">
+    <div class="prog-seg"><div class="prog-fill" id="p0"></div></div>
+    <div class="prog-seg"><div class="prog-fill" id="p1"></div></div>
+    <div class="prog-seg"><div class="prog-fill" id="p2"></div></div>
+    <div class="prog-seg"><div class="prog-fill" id="p3"></div></div>
+    <div class="prog-seg"><div class="prog-fill" id="p4"></div></div>
+    <div class="prog-seg"><div class="prog-fill" id="p5"></div></div>
+  </div>
+
+  <!-- Glitch overlay -->
+  <div id="glitch-overlay"></div>
+
+  <!-- Particles canvas -->
+  <div id="particles"></div>
+
+  <!-- ══ SCENE 0: HOOK ══ -->
+  <div class="scene active" id="s0">
+    <div class="glitch-wrap slide-up" id="s0-text">
+      <div class="hook-text">¿Quieres<br><span>GANAR DINERO</span><br>desde tu cel?</div>
+      <div class="sub-hook">Esta app lo hace posible 👇</div>
+      <div class="arrow-bounce">⬇️</div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 1: PROBLEMA ══ -->
+  <div class="scene" id="s1">
+    <div class="problem-card slide-up" id="s1-card">
+      <span class="problem-emoji">😤</span>
+      <div class="problem-title">¿Ya te cansaste?</div>
+      <div class="problem-desc">Vender por WhatsApp y redes sin orden ni control</div>
+      <ul class="pain-points">
+        <li>Clientes que nunca compran</li>
+        <li>Sin catálogo profesional</li>
+        <li>Sin forma de cobrar fácil</li>
+        <li>Perdido entre miles de DMs</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 2: SOLUCIÓN ══ -->
+  <div class="scene" id="s2">
+    <div class="solution-title">✨ La Solución ✨</div>
+    <div class="feature-list" id="features">
+      <div class="feature-item" id="f0">
+        <span class="fi-icon">🛍️</span>
+        <div class="fi-text">
+          <div class="fi-title">Marketplace propio</div>
+          <div class="fi-desc">Tu tienda online en segundos</div>
+        </div>
+      </div>
+      <div class="feature-item" id="f1">
+        <span class="fi-icon">💬</span>
+        <div class="fi-text">
+          <div class="fi-title">Chat directo</div>
+          <div class="fi-desc">Habla con compradores al instante</div>
+        </div>
+      </div>
+      <div class="feature-item" id="f2">
+        <span class="fi-icon">🔗</span>
+        <div class="fi-text">
+          <div class="fi-title">Comparte tu catálogo</div>
+          <div class="fi-desc">Link único para tus productos</div>
+        </div>
+      </div>
+      <div class="feature-item" id="f3">
+        <span class="fi-icon">👁️</span>
+        <div class="fi-text">
+          <div class="fi-title">Sin registro para ver</div>
+          <div class="fi-desc">Cualquiera puede comprar fácil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 3: MEMBRESÍA ══ -->
+  <div class="scene" id="s3">
+    <div class="mem-title slide-up" id="s3-title">Elige tu <span>plan</span></div>
+    <div class="cards-wrap slide-up" id="s3-cards">
+      <div class="mem-card free">
+        <span class="mc-icon">👀</span>
+        <div class="mc-name">Gratis</div>
+        <div class="mc-price">$0 <small>para siempre</small></div>
+        <ul>
+          <li>Ver productos</li>
+          <li>Buscar vendedores</li>
+          <li>Sin publicar</li>
+        </ul>
+      </div>
+      <div class="mem-card premium">
+        <div class="badge">⚡ HOT</div>
+        <span class="mc-icon">🚀</span>
+        <div class="mc-name">Membresía</div>
+        <div class="mc-price">💰 <small>único pago</small></div>
+        <ul>
+          <li>Publicar ilimitado</li>
+          <li>Chat con clientes</li>
+          <li>Link compartible</li>
+          <li>Soporte VIP</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 4: GANAR DINERO ══ -->
+  <div class="scene" id="s4">
+    <div class="earn-title">Empieza a <span>vender</span></div>
+    <div class="earn-sub">en menos de 5 minutos</div>
+    <div class="steps" id="steps">
+      <div class="step-item" id="st0">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <div class="step-title">Descarga la app</div>
+          <div class="step-desc">Gratis en Android e iOS</div>
+        </div>
+      </div>
+      <div class="step-item" id="st1">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <div class="step-title">Activa tu membresía</div>
+          <div class="step-desc">Un solo pago, acceso de por vida</div>
+        </div>
+      </div>
+      <div class="step-item" id="st2">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <div class="step-title">Publica tus productos</div>
+          <div class="step-desc">Fotos, precio y descripción</div>
+        </div>
+      </div>
+      <div class="step-item" id="st3">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <div class="step-title">¡Empieza a cobrar! 🎉</div>
+          <div class="step-desc">Clientes te contactan por chat</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 5: URGENCIA ══ -->
+  <div class="scene" id="s5">
+    <div class="urgency-wrap">
+      <span class="fire">🔥</span>
+      <div class="urgency-title">
+        <span>+500</span> personas<br>ya están<br>vendiendo
+      </div>
+      <div class="counter-wrap">
+        <div class="counter-label">Vendedores activos hoy</div>
+        <div class="counter" id="counter">0</div>
+      </div>
+      <div class="urgency-cta">¡No te quedes atrás!</div>
+    </div>
+  </div>
+
+  <!-- ══ SCENE 6: CTA FINAL ══ -->
+  <div class="scene" id="s6">
+    <div class="logo-wrap">
+      <div class="logo-icon">🏔️</div>
+      <div class="logo-name">Subli<span>montes</span></div>
+      <div class="logo-name" style="font-size:18px;color:#888;letter-spacing:2px;">SHOP</div>
+    </div>
+    <div class="final-msg">
+      <strong>Tu marketplace personal.</strong><br>
+      Vende cualquier producto,<br>conecta con más clientes<br>y <strong>haz crecer tu negocio</strong> hoy.
+    </div>
+    <div class="cta-btn">¡Únete Gratis! 🚀</div>
+    <div class="handle">Síguenos <span>@sublimontes_shop</span></div>
+  </div>
+
+</div><!-- end #screen -->
+
+<script>
+// ── CONFIG ──
+const SCENES = [
+  { id: 's0', duration: 8000  },  // hook
+  { id: 's1', duration: 9000  },  // problema
+  { id: 's2', duration: 12000 },  // solución
+  { id: 's3', duration: 10000 },  // membresía
+  { id: 's4', duration: 12000 },  // pasos
+  { id: 's5', duration: 8000  },  // urgencia
+  { id: 's6', duration: 10000 },  // CTA final  -- total ≈ 69s (edit durations to taste)
+];
+
+let current = 0;
+let sceneStart = 0;
+let raf;
+
+// ── PARTICLES ──
+function spawnParticles() {
+  const container = document.getElementById('particles');
+  const colors = ['#ff004d','#ff6600','#ffdd00','#00ff88','#00e5ff','#bb88ff'];
+  for (let i = 0; i < 35; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 4 + Math.random() * 8;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${4+Math.random()*6}s;
+      animation-delay:${Math.random()*6}s;
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ── MONEY RAIN ──
+function spawnMoney(scene) {
+  const emojis = ['💰','💵','🤑','💸'];
+  for (let i = 0; i < 12; i++) {
+    const m = document.createElement('div');
+    m.className = 'money';
+    m.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    m.style.cssText = `
+      left:${Math.random()*90}%;
+      animation-duration:${2+Math.random()*3}s;
+      animation-delay:${Math.random()*3}s;
+    `;
+    scene.appendChild(m);
+  }
+}
+
+// ── GLITCH FLASH ──
+function glitchFlash() {
+  const el = document.getElementById('glitch-overlay');
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+
+// ── COUNTER ANIM ──
+function animateCounter(target, duration) {
+  const el = document.getElementById('counter');
+  let start = null;
+  function step(ts) {
+    if (!start) start = ts;
+    const progress = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(ease * target).toLocaleString();
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ── SCENE ENTRY ANIMATIONS ──
+function onSceneEnter(idx) {
+  switch (idx) {
+    case 0:
+      setTimeout(() => document.getElementById('s0-text').classList.add('show'), 200);
+      break;
+    case 1:
+      setTimeout(() => document.getElementById('s1-card').classList.add('show'), 200);
+      break;
+    case 2:
+      [0,1,2,3].forEach(i => {
+        setTimeout(() => document.getElementById('f'+i).classList.add('show'), 300 + i*220);
+      });
+      break;
+    case 3:
+      setTimeout(() => document.getElementById('s3-title').classList.add('show'), 200);
+      setTimeout(() => document.getElementById('s3-cards').classList.add('show'), 500);
+      break;
+    case 4:
+      [0,1,2,3].forEach(i => {
+        setTimeout(() => document.getElementById('st'+i).classList.add('show'), 300 + i*250);
+      });
+      spawnMoney(document.getElementById('s4'));
+      break;
+    case 5:
+      setTimeout(() => animateCounter(527, 3000), 600);
+      break;
+    case 6:
+      break;
+  }
+}
+
+// ── SCENE TRANSITION ──
+function showScene(idx) {
+  glitchFlash();
+  const prev = document.querySelector('.scene.active');
+  if (prev) prev.classList.remove('active');
+  const next = document.getElementById(SCENES[idx].id);
+  next.classList.add('active');
+  sceneStart = performance.now();
+  onSceneEnter(idx);
+}
+
+// ── PROGRESS BAR LOOP ──
+function loop(ts) {
+  const elapsed = ts - sceneStart;
+  const dur = SCENES[current].duration;
+  const pct = Math.min(elapsed / dur * 100, 100);
+
+  // fill current bar
+  document.getElementById('p'+current).style.width = pct + '%';
+  document.getElementById('p'+current).style.transition = 'none';
+
+  // fill completed bars
+  for (let i = 0; i < current; i++) {
+    document.getElementById('p'+i).style.width = '100%';
+  }
+
+  if (elapsed >= dur) {
+    current++;
+    if (current < SCENES.length) {
+      showScene(current);
+    } else {
+      // loop video back to start
+      current = 0;
+      // reset bars
+      for (let i = 0; i < SCENES.length; i++) {
+        document.getElementById('p'+i).style.width = '0%';
+      }
+      // reset slide-up states
+      document.querySelectorAll('.slide-up').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('.feature-item').forEach(e => e.classList.remove('show'));
+      document.querySelectorAll('.step-item').forEach(e => e.classList.remove('show'));
+      // clear money
+      document.querySelectorAll('.money').forEach(e => e.remove());
+      showScene(0);
+    }
+  }
+  raf = requestAnimationFrame(loop);
+}
+
+// ── INIT ──
+spawnParticles();
+onSceneEnter(0);
+sceneStart = performance.now();
+raf = requestAnimationFrame(loop);
+</script>
+</body>
+</html>

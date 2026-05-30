@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>TikTok Viral V2</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  background:#000;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  overflow:hidden;
+}
+
+#phone {
+  width:390px;
+  height:844px;
+  position:relative;
+  overflow:hidden;
+  background:#000;
+  border-radius:18px;
+  box-shadow:0 0 80px rgba(0,255,180,0.15), 0 0 2px rgba(0,255,180,0.4);
+}
+
+/* ══ SCANLINES ══ */
+#scanlines {
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(
+    0deg, transparent, transparent 3px,
+    rgba(0,0,0,0.08) 3px, rgba(0,0,0,0.08) 4px
+  );
+  pointer-events:none;z-index:900;
+}
+
+/* ══ MATRIX CANVAS ══ */
+#matrix {
+  position:absolute;inset:0;
+  opacity:0;
+  transition:opacity 0.8s;
+  z-index:1;
+}
+
+/* ══ PROGRESS ══ */
+#progress {
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  width:340px;display:flex;gap:5px;z-index:800;
+}
+.pseg{flex:1;height:3px;background:rgba(255,255,255,0.15);border-radius:3px;overflow:hidden;}
+.pfill{height:100%;width:0%;background:#fff;border-radius:3px;}
+
+/* ══ FLASH ══ */
+#flash {
+  position:absolute;inset:0;z-index:850;
+  pointer-events:none;opacity:0;background:#fff;
+}
+
+/* ══ SCENES ══ */
+.scene {
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  opacity:0;pointer-events:none;
+  z-index:10;
+}
+.scene.active{opacity:1;pointer-events:auto;}
+
+/* ════════════════════════════════
+   SCENE 0 — HOOK
+════════════════════════════════ */
+#s0 { background:linear-gradient(180deg,#000 0%,#080010 100%); }
+
+.hook-eyebrow {
+  font-family:'Arial Black',sans-serif;
+  font-size:13px;letter-spacing:6px;
+  color:#888;text-transform:uppercase;margin-bottom:20px;
+}
+.hook-main {
+  font-family:'Arial Black',sans-serif;
+  font-size:50px;font-weight:900;
+  color:#fff;text-align:center;
+  line-height:1;text-transform:uppercase;
+  position:relative;
+}
+.hook-main .accent { color:#00ffb4; text-shadow:0 0 30px #00ffb4; }
+.hook-main .red    { color:#ff003c; text-shadow:0 0 30px #ff003c; }
+
+.hook-sub {
+  font-family:'Arial Black',sans-serif;
+  font-size:19px;color:#aaa;
+  margin-top:22px;text-align:center;
+  line-height:1.4;
+}
+.hook-sub strong{color:#fff;}
+
+/* glitch animation */
+@keyframes glitch {
+  0%,100%{text-shadow:0 0 30px #00ffb4;}
+  20%{text-shadow:-4px 0 #ff003c, 4px 0 #0ff;}
+  40%{text-shadow:4px 0 #ff003c,-4px 0 #0ff;}
+  60%{text-shadow:-4px 2px #ff003c,4px -2px #0ff;}
+  80%{text-shadow:0 0 0 #000;}
+}
+.glitch { animation:glitch 2.5s infinite; }
+
+/* typing cursor */
+.cursor{display:inline-block;width:3px;height:0.85em;background:#00ffb4;margin-left:2px;vertical-align:text-bottom;animation:blink 0.7s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ════════════════════════════════
+   SCENE 1 — TIPO 1: CONSUMIDOR
+════════════════════════════════ */
+#s1 { background:linear-gradient(160deg,#0a000a 0%,#1a001a 100%); }
+.tipo-badge {
+  font-family:'Arial Black',sans-serif;
+  font-size:11px;letter-spacing:5px;
+  color:#ff44aa;text-transform:uppercase;margin-bottom:14px;
+}
+.tipo-title {
+  font-family:'Arial Black',sans-serif;
+  font-size:42px;font-weight:900;
+  color:#fff;text-transform:uppercase;
+  text-align:center;line-height:1;margin-bottom:6px;
+}
+.tipo-title .label{color:#ff44aa;text-shadow:0 0 20px #ff44aa;}
+.tipo-emoji{font-size:80px;margin:14px 0;}
+.tipo-desc {
+  font-family:'Arial Black',sans-serif;
+  font-size:18px;color:#ccc;
+  text-align:center;line-height:1.5;
+  padding:0 30px;margin-bottom:20px;
+}
+.scroll-feed {
+  width:320px;
+  display:flex;flex-direction:column;gap:8px;
+  overflow:hidden;height:160px;
+  mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent);
+}
+.feed-post {
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,68,170,0.2);
+  border-radius:12px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  animation:scroll-up 1s linear infinite;
+}
+@keyframes scroll-up{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(-50%);}
+}
+.feed-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ff44aa,#ff0044);flex-shrink:0;}
+.feed-text{font-size:12px;color:#aaa;font-family:Arial,sans-serif;}
+.feed-like{margin-left:auto;font-size:13px;color:#ff44aa;}
+.tipo-result {
+  font-family:'Arial Black',sans-serif;
+  font-size:15px;
+  background:rgba(255,0,60,0.1);
+  border:1px solid rgba(255,0,60,0.4);
+  border-radius:50px;padding:8px 22px;
+  color:#ff4466;
+}
+
+/* ════════════════════════════════
+   SCENE 2 — TIPO 2: INFORMAL
+════════════════════════════════ */
+#s2 { background:linear-gradient(160deg,#080800 0%,#1a1400 100%); }
+.whatsapp-wrap {
+  width:310px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,200,0,0.25);
+  border-radius:16px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;
+  margin:14px 0;
+}
+.wa-bubble {
+  max-width:75%;padding:9px 14px;
+  border-radius:14px;font-size:13px;
+  font-family:Arial,sans-serif;line-height:1.4;
+  opacity:0;transform:translateY(12px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.wa-bubble.show{opacity:1;transform:translateY(0);}
+.wa-out {
+  background:rgba(37,211,102,0.15);
+  border:1px solid rgba(37,211,102,0.3);
+  color:#ccc;align-self:flex-end;
+}
+.wa-in {
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  color:#bbb;align-self:flex-start;
+}
+.wa-read{font-size:10px;color:#25d366;text-align:right;margin-top:2px;}
+
+/* ════════════════════════════════
+   SCENE 3 — TIPO 3: EL QUE DOMINA
+════════════════════════════════ */
+#s3 { background:linear-gradient(160deg,#000a00 0%,#001a08 100%); }
+.level-up-wrap { text-align:center;position:relative; }
+.level-badge {
+  font-family:'Arial Black',sans-serif;
+  font-size:11px;letter-spacing:5px;
+  color:#00ffb4;text-transform:uppercase;margin-bottom:14px;
+}
+.level-title {
+  font-family:'Arial Black',sans-serif;
+  font-size:38px;font-weight:900;
+  color:#fff;text-transform:uppercase;
+  line-height:1;text-align:center;margin-bottom:4px;
+}
+.level-title .g{color:#00ffb4;text-shadow:0 0 20px #00ffb4;}
+.level-icon{font-size:74px;margin:12px 0;}
+
+.stats-grid {
+  width:320px;display:grid;
+  grid-template-columns:1fr 1fr;gap:10px;
+  margin:12px 0;
+}
+.stat-box {
+  background:rgba(0,255,180,0.05);
+  border:1px solid rgba(0,255,180,0.25);
+  border-radius:14px;padding:14px 10px;
+  text-align:center;
+  opacity:0;transform:scale(0.85);
+  transition:opacity 0.35s,transform 0.35s;
+}
+.stat-box.show{opacity:1;transform:scale(1);}
+.stat-num {
+  font-family:'Arial Black',sans-serif;
+  font-size:28px;font-weight:900;
+  color:#00ffb4;
+}
+.stat-label{font-size:11px;color:#88ccaa;font-family:Arial,sans-serif;margin-top:4px;}
+
+.earnings-bar-wrap{width:310px;margin-top:4px;}
+.earnings-label{
+  font-family:'Arial Black',sans-serif;
+  font-size:13px;color:#888;
+  display:flex;justify-content:space-between;margin-bottom:6px;
+}
+.earnings-label span{color:#00ffb4;}
+.bar-track{height:8px;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,#00ff88,#00ffb4);border-radius:8px;transition:width 1.5s cubic-bezier(.25,1,.5,1);}
+
+/* ════════════════════════════════
+   SCENE 4 — EL SECRETO
+════════════════════════════════ */
+#s4 { background:linear-gradient(160deg,#00000a 0%,#00001a 100%); }
+.secret-top{
+  font-family:'Arial Black',sans-serif;
+  font-size:12px;letter-spacing:5px;color:#5555ff;
+  text-transform:uppercase;margin-bottom:16px;
+}
+.secret-title{
+  font-family:'Arial Black',sans-serif;
+  font-size:36px;font-weight:900;
+  color:#fff;text-align:center;
+  text-transform:uppercase;line-height:1;margin-bottom:6px;
+}
+.secret-title .blue{color:#4488ff;text-shadow:0 0 20px #4488ff;}
+.secret-title .neon{color:#00ffb4;text-shadow:0 0 20px #00ffb4;}
+
+.phone-mockup {
+  width:180px;height:320px;
+  background:#0a0a0a;
+  border:3px solid rgba(0,255,180,0.4);
+  border-radius:28px;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 40px rgba(0,255,180,0.2), inset 0 0 30px rgba(0,0,0,0.8);
+  margin:16px 0;
+}
+.pm-notch{
+  width:70px;height:12px;background:#000;
+  border-radius:0 0 12px 12px;
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  z-index:2;
+}
+.pm-screen{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#001a0a,#002a10);
+  display:flex;flex-direction:column;
+  padding:20px 10px 10px;gap:6px;overflow:hidden;
+}
+.pm-topbar{
+  display:flex;justify-content:space-between;
+  align-items:center;padding:0 2px;margin-bottom:4px;
+}
+.pm-logo{font-size:10px;font-weight:900;color:#00ffb4;font-family:'Arial Black',sans-serif;}
+.pm-icon{font-size:14px;}
+.pm-product {
+  background:rgba(0,255,180,0.07);
+  border:1px solid rgba(0,255,180,0.2);
+  border-radius:8px;padding:6px 8px;
+  display:flex;align-items:center;gap:8px;
+  opacity:0;transform:translateX(-20px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.pm-product.show{opacity:1;transform:translateX(0);}
+.pm-prod-img{width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#00ffb4,#0088ff);flex-shrink:0;}
+.pm-prod-name{font-size:8px;font-weight:900;color:#00ffb4;font-family:'Arial Black',sans-serif;}
+.pm-prod-price{font-size:7px;color:#aaa;font-family:Arial,sans-serif;margin-top:1px;}
+.pm-prod-badge{margin-left:auto;font-size:7px;color:#00ff88;font-family:Arial,sans-serif;}
+
+.feature-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;width:320px;margin-top:8px;}
+.pill{
+  font-family:'Arial Black',sans-serif;
+  font-size:11px;font-weight:700;
+  padding:7px 16px;border-radius:50px;
+  opacity:0;transform:translateY(10px);
+  transition:opacity 0.3s,transform 0.3s;
+}
+.pill.show{opacity:1;transform:translateY(0);}
+.pill.p1{background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.4);color:#00ffb4;}
+.pill.p2{background:rgba(68,136,255,0.1);border:1px solid rgba(68,136,255,0.4);color:#4488ff;}
+.pill.p3{background:rgba(255,200,0,0.1);border:1px solid rgba(255,200,0,0.4);color:#ffc800;}
+.pill.p4{background:rgba(255,68,170,0.1);border:1px solid rgba(255,68,170,0.4);color:#ff44aa;}
+.pill.p5{background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.4);color:#00ffb4;}
+
+/* ════════════════════════════════
+   SCENE 5 — FOMO / URGENCIA
+════════════════════════════════ */
+#s5 { background:linear-gradient(160deg,#0a0000 0%,#1a0000 100%); }
+.fomo-top{font-family:'Arial Black',sans-serif;font-size:12px;letter-spacing:4px;color:#ff4444;text-transform:uppercase;margin-bottom:12px;}
+.fomo-title{
+  font-family:'Arial Black',sans-serif;
+  font-size:40px;font-weight:900;
+  color:#fff;text-transform:uppercase;
+  text-align:center;line-height:1;
+}
+.fomo-title .red{color:#ff003c;text-shadow:0 0 20px #ff003c;animation:pulse-red 0.8s infinite alternate;}
+@keyframes pulse-red{from{text-shadow:0 0 20px #ff003c;}to{text-shadow:0 0 50px #ff003c,0 0 80px #ff003c;}}
+
+.loss-card{
+  width:310px;
+  background:rgba(255,0,60,0.06);
+  border:1.5px solid rgba(255,0,60,0.3);
+  border-radius:18px;padding:20px 22px;
+  margin:18px 0;text-align:center;
+}
+.loss-num{
+  font-family:'Arial Black',sans-serif;
+  font-size:56px;font-weight:900;
+  color:#ff003c;text-shadow:0 0 30px #ff003c;
+}
+.loss-label{font-family:Arial,sans-serif;font-size:14px;color:#ff8888;margin-top:2px;}
+.loss-label strong{color:#fff;}
+
+.ticker-wrap{
+  width:100%;overflow:hidden;
+  background:rgba(255,0,0,0.08);
+  border-top:1px solid rgba(255,0,0,0.2);
+  border-bottom:1px solid rgba(255,0,0,0.2);
+  padding:8px 0;
+}
+.ticker-inner{
+  display:flex;gap:40px;white-space:nowrap;
+  animation:ticker 6s linear infinite;
+}
+@keyframes ticker{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+.ticker-item{font-family:'Arial Black',sans-serif;font-size:13px;color:#ff4444;text-transform:uppercase;letter-spacing:2px;}
+.ticker-dot{color:#ff003c;margin:0 6px;}
+
+/* ════════════════════════════════
+   SCENE 6 — CTA FINAL
+════════════════════════════════ */
+#s6 { background:radial-gradient(ellipse at 50% 40%, #001a0a 0%, #000 70%); }
+.final-logo{text-align:center;margin-bottom:18px;}
+.final-icon{font-size:70px;}
+.final-name{
+  font-family:'Arial Black',sans-serif;
+  font-size:30px;font-weight:900;
+  color:#fff;text-transform:uppercase;
+  letter-spacing:4px;margin-top:4px;
+}
+.final-name span{color:#00ffb4;}
+.final-tagline{
+  font-family:'Arial Black',sans-serif;
+  font-size:16px;color:#888;letter-spacing:2px;
+}
+
+.cta-main {
+  background:linear-gradient(90deg,#00ffb4,#00d4ff);
+  color:#000;
+  font-family:'Arial Black',sans-serif;
+  font-size:22px;font-weight:900;
+  padding:18px 50px;border-radius:50px;
+  text-transform:uppercase;letter-spacing:2px;
+  margin:24px 0 12px;
+  animation:cta-pulse 1s infinite alternate;
+  text-align:center;
+}
+@keyframes cta-pulse{
+  from{box-shadow:0 0 20px rgba(0,255,180,0.4);}
+  to{box-shadow:0 0 60px rgba(0,255,180,0.8),0 0 100px rgba(0,212,255,0.4);}
+}
+.cta-sub{font-family:Arial,sans-serif;font-size:15px;color:#666;text-align:center;margin-bottom:16px;}
+.social-row{display:flex;gap:12px;align-items:center;}
+.social-pill{
+  background:rgba(0,255,180,0.08);
+  border:1px solid rgba(0,255,180,0.25);
+  border-radius:50px;padding:8px 18px;
+  font-family:Arial,sans-serif;font-size:13px;
+  color:#00ffb4;font-weight:700;
+}
+
+/* confetti */
+.confetti-piece{
+  position:absolute;
+  width:8px;height:8px;
+  border-radius:2px;
+  animation:confetti-fall linear forwards;
+  pointer-events:none;
+}
+@keyframes confetti-fall{
+  0%{transform:translateY(-20px) rotate(0deg);opacity:1;}
+  100%{transform:translateY(900px) rotate(720deg);opacity:0;}
+}
+
+/* ══ UTILITY ══ */
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.5s,transform 0.5s;}
+.fade-in.show{opacity:1;transform:translateY(0);}
+</style>
+</head>
+<body>
+<div id="phone">
+  <canvas id="matrix"></canvas>
+  <div id="scanlines"></div>
+  <div id="flash"></div>
+
+  <!-- Progress -->
+  <div id="progress">
+    <div class="pseg"><div class="pfill" id="p0"></div></div>
+    <div class="pseg"><div class="pfill" id="p1"></div></div>
+    <div class="pseg"><div class="pfill" id="p2"></div></div>
+    <div class="pseg"><div class="pfill" id="p3"></div></div>
+    <div class="pseg"><div class="pfill" id="p4"></div></div>
+    <div class="pseg"><div class="pfill" id="p5"></div></div>
+  </div>
+
+  <!-- ══ S0: HOOK ══ -->
+  <div class="scene active" id="s0">
+    <div class="hook-eyebrow fade-in" id="h-eyebrow">¿Por qué ellos sí y tú no?</div>
+    <div class="hook-main glitch fade-in" id="h-main">
+      <span class="accent">3 TIPOS</span><br>
+      DE PERSONAS<br>
+      EN <span class="red">INTERNET</span>
+    </div>
+    <div class="hook-sub fade-in" id="h-sub">
+      ¿Cuál eres tú?<br>
+      <strong>El que consume... o el que cobra?</strong>
+    </div>
+  </div>
+
+  <!-- ══ S1: TIPO 1 ══ -->
+  <div class="scene" id="s1">
+    <div class="tipo-badge fade-in" id="t1-badge">Tipo 01 / 03</div>
+    <div class="tipo-title fade-in" id="t1-title">
+      EL <span class="label">SCROLLEADOR</span>
+    </div>
+    <div class="tipo-emoji" id="t1-emoji">📱</div>
+    <div class="tipo-desc fade-in" id="t1-desc">
+      Pasa horas viendo cómo otros<br>ganan dinero. Le da like.<br>Y sigue scrolleando.
+    </div>
+    <div class="scroll-feed" id="feed">
+      <!-- duplicated for infinite scroll -->
+      <div class="feed-post"><div class="feed-avatar"></div><div class="feed-text">Gané $800 esta semana 🤑</div><div class="feed-like">❤️ 4.2K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#4488ff,#0044ff)"></div><div class="feed-text">Mi primera venta online 🎉</div><div class="feed-like">❤️ 2.1K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#ffaa00,#ff6600)"></div><div class="feed-text">Cómo hago $$ desde casa</div><div class="feed-like">❤️ 9.8K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#aa00ff,#ff00aa)"></div><div class="feed-text">Sin salir de mi cuarto 💸</div><div class="feed-like">❤️ 7.3K</div></div>
+      <!-- duplicate -->
+      <div class="feed-post"><div class="feed-avatar"></div><div class="feed-text">Gané $800 esta semana 🤑</div><div class="feed-like">❤️ 4.2K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#4488ff,#0044ff)"></div><div class="feed-text">Mi primera venta online 🎉</div><div class="feed-like">❤️ 2.1K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#ffaa00,#ff6600)"></div><div class="feed-text">Cómo hago $$ desde casa</div><div class="feed-like">❤️ 9.8K</div></div>
+      <div class="feed-post"><div class="feed-avatar" style="background:linear-gradient(135deg,#aa00ff,#ff00aa)"></div><div class="feed-text">Sin salir de mi cuarto 💸</div><div class="feed-like">❤️ 7.3K</div></div>
+    </div>
+    <div class="tipo-result fade-in" id="t1-result">Ganancia al mes: $0 😬</div>
+  </div>
+
+  <!-- ══ S2: TIPO 2 ══ -->
+  <div class="scene" id="s2">
+    <div class="tipo-badge fade-in" id="t2-badge" style="color:#ffc800">Tipo 02 / 03</div>
+    <div class="tipo-title fade-in" id="t2-title">
+      EL <span class="label" style="color:#ffc800;text-shadow:0 0 20px #ffc800">INFORMAL</span>
+    </div>
+    <div class="tipo-emoji">📤</div>
+    <div class="whatsapp-wrap" id="wa-wrap">
+      <div class="wa-bubble wa-out" id="wa1">Hola, vendo ropa, zapatos y accesorios ✨</div>
+      <div class="wa-bubble wa-in"  id="wa2">¿Cuánto cuesta la blusa azul?</div>
+      <div class="wa-bubble wa-out" id="wa3">Ahorita te busco la foto 😅</div>
+      <div class="wa-bubble wa-in"  id="wa4">¿Y el envío?</div>
+      <div class="wa-bubble wa-out" id="wa5">Espérame tantito... 🙃</div>
+      <div class="wa-bubble wa-in"  id="wa6" style="color:#888">— visto —</div>
+    </div>
+    <div class="tipo-result fade-in" id="t2-result" style="border-color:rgba(255,200,0,0.4);color:#ffaa00;">
+      Ventas: pocas. Estrés: mucho 😤
+    </div>
+  </div>
+
+  <!-- ══ S3: TIPO 3 ══ -->
+  <div class="scene" id="s3">
+    <div class="level-badge fade-in" id="t3-badge">⚡ TIPO 03 / 03</div>
+    <div class="level-title fade-in" id="t3-title">
+      EL QUE <span class="g">DOMINA</span>
+    </div>
+    <div class="level-icon">🚀</div>
+    <div class="stats-grid" id="stats">
+      <div class="stat-box" id="sb0"><div class="stat-num" id="sc0">0</div><div class="stat-label">Ventas/mes</div></div>
+      <div class="stat-box" id="sb1"><div class="stat-num" id="sc1">$0</div><div class="stat-label">Ganancia</div></div>
+      <div class="stat-box" id="sb2"><div class="stat-num" id="sc2">0</div><div class="stat-label">Clientes</div></div>
+      <div class="stat-box" id="sb3"><div class="stat-num">24/7</div><div class="stat-label">Tienda abierta</div></div>
+    </div>
+    <div class="earnings-bar-wrap fade-in" id="ebar">
+      <div class="earnings-label">Progreso <span id="epct">0%</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bfill"></div></div>
+    </div>
+  </div>
+
+  <!-- ══ S4: EL SECRETO ══ -->
+  <div class="scene" id="s4">
+    <div class="secret-top fade-in" id="sec-top">Su secreto es...</div>
+    <div class="secret-title fade-in" id="sec-title">
+      UNA SOLA <span class="blue">APP</span><br>LO CAMBIA <span class="neon">TODO</span>
+    </div>
+    <div class="phone-mockup" id="pm">
+      <div class="pm-notch"></div>
+      <div class="pm-screen">
+        <div class="pm-topbar">
+          <div class="pm-logo">SHOP</div>
+          <div class="pm-icon">🔔</div>
+        </div>
+        <div class="pm-product" id="pp0">
+          <div class="pm-prod-img" style="background:linear-gradient(135deg,#ff44aa,#ff0044)"></div>
+          <div><div class="pm-prod-name">Blusa Premium</div><div class="pm-prod-price">$350 MXN</div></div>
+          <div class="pm-prod-badge">✓ Vendido</div>
+        </div>
+        <div class="pm-product" id="pp1">
+          <div class="pm-prod-img" style="background:linear-gradient(135deg,#4488ff,#0044ff)"></div>
+          <div><div class="pm-prod-name">Tenis Nike</div><div class="pm-prod-price">$890 MXN</div></div>
+          <div class="pm-prod-badge">● En venta</div>
+        </div>
+        <div class="pm-product" id="pp2">
+          <div class="pm-prod-img" style="background:linear-gradient(135deg,#ffaa00,#ff6600)"></div>
+          <div><div class="pm-prod-name">Bolsa Louis</div><div class="pm-prod-price">$1,200 MXN</div></div>
+          <div class="pm-prod-badge">✓ Vendido</div>
+        </div>
+        <div class="pm-product" id="pp3">
+          <div class="pm-prod-img" style="background:linear-gradient(135deg,#00ffb4,#0088ff)"></div>
+          <div><div class="pm-prod-name">Perfume Chanel</div><div class="pm-prod-price">$650 MXN</div></div>
+          <div class="pm-prod-badge">● En venta</div>
+        </div>
+        <div class="pm-product" id="pp4">
+          <div class="pm-prod-img" style="background:linear-gradient(135deg,#aa00ff,#ff00aa)"></div>
+          <div><div class="pm-prod-name">Aretes Gold</div><div class="pm-prod-price">$220 MXN</div></div>
+          <div class="pm-prod-badge">✓ Vendido</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-pills" id="pills">
+      <div class="pill p1" id="pl0">🛍️ Marketplace</div>
+      <div class="pill p2" id="pl1">💬 Chat directo</div>
+      <div class="pill p3" id="pl2">🔗 Link propio</div>
+      <div class="pill p4" id="pl3">📊 Sin límites</div>
+      <div class="pill p5" id="pl4">✅ Membresía única</div>
+    </div>
+  </div>
+
+  <!-- ══ S5: FOMO ══ -->
+  <div class="scene" id="s5">
+    <div class="fomo-top fade-in">⚠️ Mientras lees esto...</div>
+    <div class="fomo-title fade-in">
+      ALGUIEN<br>MÁS ACABA<br>DE <span class="red">VENDER</span>
+    </div>
+    <div class="loss-card fade-in" id="lcard">
+      <div class="loss-num" id="loss-count">$0</div>
+      <div class="loss-label">en ventas perdidas <strong>hoy</strong></div>
+    </div>
+    <div class="ticker-wrap">
+      <div class="ticker-inner" id="ticker">
+        <span class="ticker-item">VENTA CONFIRMADA<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">NUEVO CLIENTE<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">PEDIDO RECIBIDO<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">$890 COBRADOS<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">VENTA CONFIRMADA<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">NUEVO CLIENTE<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">PEDIDO RECIBIDO<span class="ticker-dot">●</span></span>
+        <span class="ticker-item">$890 COBRADOS<span class="ticker-dot">●</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ S6: CTA ══ -->
+  <div class="scene" id="s6">
+    <div class="final-logo fade-in" id="fl">
+      <div class="final-icon">🏔️</div>
+      <div class="final-name">Subli<span>montes</span></div>
+      <div class="final-tagline">SHOP</div>
+    </div>
+    <div class="cta-main fade-in" id="fcta">¡EMPIEZA A VENDER! 🚀</div>
+    <div class="cta-sub fade-in" id="fsub">Gratis para ver · Membresía para vender</div>
+    <div class="social-row fade-in" id="fsoc">
+      <div class="social-pill">📲 Descarga Ya</div>
+      <div class="social-pill">@sublimontes_shop</div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+// ══ MATRIX ══
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+canvas.width = 390; canvas.height = 844;
+const cols = Math.floor(390 / 16);
+const drops = Array(cols).fill(1);
+const chars = 'アイウエオカキクケコ0123456789ABCDEF$€¥';
+let matrixRunning = false;
+function drawMatrix() {
+  if (!matrixRunning) return;
+  ctx.fillStyle = 'rgba(0,0,0,0.05)';
+  ctx.fillRect(0,0,390,844);
+  ctx.fillStyle = '#00ffb4';
+  ctx.font = '14px monospace';
+  drops.forEach((y,i)=>{
+    const ch = chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(ch, i*16, y*16);
+    if (y*16 > 844 && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  });
+  requestAnimationFrame(drawMatrix);
+}
+
+// ══ FLASH ══
+function flash(color='#fff') {
+  const el = document.getElementById('flash');
+  el.style.background = color;
+  el.style.opacity = '1';
+  setTimeout(()=>{ el.style.transition='opacity 0.3s'; el.style.opacity='0'; }, 80);
+  setTimeout(()=>{ el.style.transition=''; }, 400);
+}
+
+// ══ COUNTER ══
+function animNum(el, target, dur, prefix='', suffix='', isK=false) {
+  let start = null;
+  const step = ts => {
+    if (!start) start = ts;
+    const p = Math.min((ts-start)/dur, 1);
+    const ease = 1 - Math.pow(1-p, 3);
+    const val = Math.floor(ease * target);
+    el.textContent = prefix + (isK ? val.toLocaleString() : val) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ══ CONFETTI ══
+function spawnConfetti() {
+  const colors=['#00ffb4','#4488ff','#ff44aa','#ffc800','#ff003c','#fff'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div');
+    c.className='confetti-piece';
+    c.style.cssText=`
+      left:${Math.random()*100}%;
+      top:-10px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${1.5+Math.random()*2}s;
+      animation-delay:${Math.random()*1}s;
+      transform:rotate(${Math.random()*360}deg);
+      z-index:500;
+    `;
+    document.getElementById('phone').appendChild(c);
+    setTimeout(()=>c.remove(), 4000);
+  }
+}
+
+// ══ SCENE LOGIC ══
+const SCENES = [
+  { id:'s0', dur:7000 },
+  { id:'s1', dur:9000 },
+  { id:'s2', dur:10000 },
+  { id:'s3', dur:11000 },
+  { id:'s4', dur:11000 },
+  { id:'s5', dur:8000 },
+  { id:'s6', dur:11000 },
+];
+
+let cur = 0, sceneStart = performance.now();
+
+function show(el){ el && el.classList.add('show'); }
+
+function onEnter(i) {
+  const delay = (fn, ms) => setTimeout(fn, ms);
+  switch(i) {
+    case 0:
+      delay(()=>show(document.getElementById('h-eyebrow')), 200);
+      delay(()=>show(document.getElementById('h-main')), 500);
+      delay(()=>show(document.getElementById('h-sub')), 900);
+      break;
+    case 1:
+      delay(()=>show(document.getElementById('t1-badge')), 200);
+      delay(()=>show(document.getElementById('t1-title')), 400);
+      delay(()=>show(document.getElementById('t1-desc')), 700);
+      delay(()=>show(document.getElementById('t1-result')), 7000);
+      break;
+    case 2:
+      show(document.getElementById('t2-badge'));
+      delay(()=>show(document.getElementById('t2-title')), 300);
+      ['wa1','wa2','wa3','wa4','wa5','wa6'].forEach((id,j)=>{
+        delay(()=>show(document.getElementById(id)), 800 + j*900);
+      });
+      delay(()=>show(document.getElementById('t2-result')), 8000);
+      break;
+    case 3:
+      show(document.getElementById('t3-badge'));
+      delay(()=>show(document.getElementById('t3-title')), 300);
+      delay(()=>{
+        ['sb0','sb1','sb2','sb3'].forEach((id,j)=>delay(()=>show(document.getElementById(id)),j*200));
+      }, 700);
+      delay(()=>{
+        show(document.getElementById('ebar'));
+        document.getElementById('bfill').style.width='87%';
+        document.getElementById('epct').textContent='87%';
+      }, 1200);
+      delay(()=>animNum(document.getElementById('sc0'), 48, 2000, '', ' 🛍️'), 1000);
+      delay(()=>animNum(document.getElementById('sc1'), 12400, 2500, '$', '', true), 1000);
+      delay(()=>animNum(document.getElementById('sc2'), 312, 2000), 1000);
+      matrixRunning = true; drawMatrix();
+      document.getElementById('matrix').style.opacity = '0.06';
+      break;
+    case 4:
+      show(document.getElementById('sec-top'));
+      delay(()=>show(document.getElementById('sec-title')), 400);
+      ['pp0','pp1','pp2','pp3','pp4'].forEach((id,j)=>delay(()=>show(document.getElementById(id)), 900+j*280));
+      ['pl0','pl1','pl2','pl3','pl4'].forEach((id,j)=>delay(()=>show(document.getElementById(id)), 2800+j*180));
+      break;
+    case 5:
+      document.getElementById('matrix').style.opacity='0';
+      matrixRunning = false;
+      document.querySelectorAll('#s5 .fade-in').forEach((el,j)=>delay(()=>show(el), 200+j*250));
+      delay(()=>animNum(document.getElementById('loss-count'), 34800, 5000, '$', ' MXN', true), 800);
+      break;
+    case 6:
+      spawnConfetti();
+      delay(()=>show(document.getElementById('fl')), 200);
+      delay(()=>show(document.getElementById('fcta')), 600);
+      delay(()=>show(document.getElementById('fsub')), 1000);
+      delay(()=>show(document.getElementById('fsoc')), 1300);
+      break;
+  }
+}
+
+function nextScene() {
+  flash(cur===2?'#ffc80033':cur===3?'#00ffb422':'#ffffff22');
+  const prevEl = document.getElementById(SCENES[cur].id);
+  prevEl.classList.remove('active');
+  // reset show states in prev scene
+  prevEl.querySelectorAll('.show').forEach(e=>e.classList.remove('show'));
+  prevEl.querySelectorAll('.wa-bubble').forEach(e=>e.classList.remove('show'));
+  prevEl.querySelectorAll('.pm-product').forEach(e=>e.classList.remove('show'));
+  prevEl.querySelectorAll('.pill').forEach(e=>e.classList.remove('show'));
+  prevEl.querySelectorAll('.stat-box').forEach(e=>e.classList.remove('show'));
+
+  cur = (cur+1) % SCENES.length;
+  document.getElementById(SCENES[cur].id).classList.add('active');
+  sceneStart = performance.now();
+  onEnter(cur);
+}
+
+// progress loop
+function loop(ts) {
+  const elapsed = ts - sceneStart;
+  const dur = SCENES[cur].dur;
+  const pct = Math.min(elapsed/dur*100, 100);
+  const fills = document.querySelectorAll('.pfill');
+  fills.forEach((f,i)=>{
+    if(i < cur) f.style.width='100%';
+    else if(i===cur) f.style.width=pct+'%';
+    else f.style.width='0%';
+  });
+  if(elapsed >= dur) nextScene();
+  requestAnimationFrame(loop);
+}
+
+onEnter(0);
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

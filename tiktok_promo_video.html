@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sublimontes Shop – TikTok Promo 30s</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #111;
+    font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+  }
+
+  .phone {
+    width: 390px;
+    height: 844px;
+    background: #000;
+    border-radius: 40px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 0 60px rgba(0,0,0,.8);
+  }
+
+  /* ── SCENE WRAPPER ── */
+  .scene {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px 20px;
+    overflow: hidden;
+  }
+
+  /* ── SCENE TIMINGS (total 30 s) ── */
+  /* Scene 1  0–6 s  */
+  .s1 { animation: scene 6s  0s   linear forwards; background: linear-gradient(160deg,#FFD93D,#FF6B6B); }
+  /* Scene 2  6–12 s */
+  .s2 { animation: scene 6s  6s   linear forwards; background: linear-gradient(160deg,#6BCB77,#4D96FF); }
+  /* Scene 3  12–18 s */
+  .s3 { animation: scene 6s  12s  linear forwards; background: linear-gradient(160deg,#845EC2,#FF9671); }
+  /* Scene 4  18–24 s */
+  .s4 { animation: scene 6s  18s  linear forwards; background: linear-gradient(160deg,#0081CF,#00C9A7); }
+  /* Scene 5  24–30 s */
+  .s5 { animation: scene 6s  24s  linear forwards; background: linear-gradient(160deg,#FF6B6B,#FFD93D); }
+
+  @keyframes scene {
+    0%   { opacity:0; transform:scale(.95); }
+    8%   { opacity:1; transform:scale(1);   }
+    85%  { opacity:1; transform:scale(1);   }
+    100% { opacity:0; transform:scale(1.03); }
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .hook {
+    font-size: 52px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.3);
+    animation: popIn .5s .3s both;
+  }
+  .hook span { color: #fff176; }
+
+  .sub {
+    font-size: 22px;
+    color: #fff;
+    margin-top: 14px;
+    text-shadow: 1px 1px 4px rgba(0,0,0,.4);
+    animation: popIn .5s .7s both;
+  }
+
+  .product-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 2px 2px 0 rgba(0,0,0,.3);
+    animation: popIn .5s .2s both;
+  }
+
+  @keyframes popIn {
+    from { opacity:0; transform:scale(.7) translateY(20px); }
+    to   { opacity:1; transform:scale(1)  translateY(0);    }
+  }
+
+  /* ── BOOKS GRID ── */
+  .books {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0;
+    animation: popIn .6s .4s both;
+  }
+  .book {
+    border-radius: 16px;
+    padding: 18px 10px 14px;
+    font-size: 15px;
+    font-weight: 900;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  }
+  .book-icon { font-size: 40px; }
+  .book.drawing  { background: #FF6B6B; }
+  .book.alpha    { background: #4D96FF; }
+  .book.number   { background: #FFD93D; color:#333; }
+  .book.math     { background: #6BCB77; }
+
+  .kit-badge {
+    background: rgba(255,255,255,.25);
+    border-radius: 20px;
+    padding: 10px 22px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 6px;
+    animation: popIn .5s .9s both;
+  }
+
+  /* ── BENEFITS ── */
+  .benefits { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+  .benefit {
+    background: rgba(255,255,255,.22);
+    border-radius: 18px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #fff;
+    font-size: 19px;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+  }
+  .benefit-icon { font-size: 38px; }
+  .benefit:nth-child(1) { animation: slideIn .5s .2s both; }
+  .benefit:nth-child(2) { animation: slideIn .5s .5s both; }
+  .benefit:nth-child(3) { animation: slideIn .5s .8s both; }
+
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(-40px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  /* ── HOW IT WORKS ── */
+  .steps { display:flex; flex-direction:column; gap:14px; width:100%; }
+  .step {
+    background: rgba(255,255,255,.2);
+    border-radius: 18px;
+    padding: 14px 18px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    backdrop-filter: blur(4px);
+  }
+  .step-num {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.35);
+    display:flex; align-items:center; justify-content:center;
+    font-size: 22px; font-weight:900; flex-shrink:0;
+  }
+  .step:nth-child(1) { animation: slideIn .5s .2s both; }
+  .step:nth-child(2) { animation: slideIn .5s .5s both; }
+  .step:nth-child(3) { animation: slideIn .5s .8s both; }
+
+  /* ── CTA ── */
+  .cta-title {
+    font-size: 46px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1.1;
+    text-shadow: 3px 3px 0 rgba(0,0,0,.25);
+    animation: popIn .6s .1s both;
+  }
+  .cta-price {
+    font-size: 28px;
+    color: #fff176;
+    font-weight: 900;
+    margin: 10px 0;
+    animation: popIn .6s .4s both;
+  }
+  .cta-btn {
+    background: #fff;
+    color: #FF6B6B;
+    border-radius: 50px;
+    padding: 18px 40px;
+    font-size: 22px;
+    font-weight: 900;
+    margin-top: 18px;
+    animation: pulse 1s .8s infinite;
+    box-shadow: 0 6px 20px rgba(0,0,0,.3);
+  }
+  .cta-store {
+    color: rgba(255,255,255,.85);
+    font-size: 18px;
+    margin-top: 14px;
+    font-weight: 700;
+    animation: popIn .6s 1s both;
+  }
+
+  @keyframes pulse {
+    0%,100% { transform:scale(1); }
+    50%      { transform:scale(1.06); }
+  }
+
+  /* ── EMOJI BURST (scene 1) ── */
+  .burst { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .star {
+    position:absolute;
+    font-size: 30px;
+    animation: float 3s ease-in-out infinite;
+  }
+  .star:nth-child(1)  { top:8%;  left:5%;  animation-delay:0s;    }
+  .star:nth-child(2)  { top:12%; right:8%; animation-delay:.4s;   }
+  .star:nth-child(3)  { bottom:20%; left:8%;  animation-delay:.8s; }
+  .star:nth-child(4)  { bottom:15%; right:5%; animation-delay:.3s; }
+  .star:nth-child(5)  { top:40%; left:3%;   animation-delay:.6s;  }
+  .star:nth-child(6)  { top:55%; right:4%;  animation-delay:.9s;  }
+
+  @keyframes float {
+    0%,100% { transform:translateY(0) rotate(0deg); }
+    50%      { transform:translateY(-16px) rotate(15deg); }
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress {
+    position:absolute;
+    top: 0; left:0; right:0;
+    height: 4px;
+    background: rgba(255,255,255,.2);
+    z-index: 100;
+  }
+  .progress-bar {
+    height: 100%;
+    background: #FFD93D;
+    animation: progress 30s linear forwards;
+    border-radius: 0 2px 2px 0;
+  }
+  @keyframes progress {
+    from { width:0%; }
+    to   { width:100%; }
+  }
+
+  /* ── TIMER BADGE ── */
+  .timer {
+    position:absolute;
+    top: 12px; right: 14px;
+    background: rgba(0,0,0,.45);
+    color: #FFD93D;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 20px;
+    padding: 4px 10px;
+    z-index: 101;
+  }
+
+  /* ── CONTROL BUTTON ── */
+  .controls {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+  }
+  .play-btn {
+    background: rgba(255,255,255,.15);
+    border: 2px solid rgba(255,255,255,.4);
+    color: #fff;
+    border-radius: 30px;
+    padding: 10px 28px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+  }
+  .play-btn:hover { background: rgba(255,255,255,.3); }
+
+  /* ── LOGO WATERMARK ── */
+  .watermark {
+    position: absolute;
+    bottom: 80px;
+    left: 18px;
+    color: rgba(255,255,255,.6);
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 100;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Progress Bar -->
+  <div class="progress">
+    <div class="progress-bar" id="pbar"></div>
+  </div>
+
+  <!-- ─────────────────── SCENE 1: HOOK (0–6s) ─────────────────── -->
+  <div class="scene s1">
+    <div class="burst">
+      <span class="star">⭐</span>
+      <span class="star">🎨</span>
+      <span class="star">✏️</span>
+      <span class="star">📚</span>
+      <span class="star">🌟</span>
+      <span class="star">🖊️</span>
+    </div>
+    <div class="hook">¿Tu niño<br>aprende<br><span>jugando?</span></div>
+    <div class="sub">¡Ahora sí puede! 🎉</div>
+  </div>
+
+  <!-- ─────────────────── SCENE 2: PRODUCTO (6–12s) ─────────────── -->
+  <div class="scene s2">
+    <div class="product-title">✨ Magic Groove<br>Practice Copybook</div>
+    <div class="books">
+      <div class="book drawing">
+        <div class="book-icon">🎨</div>
+        Dibujo
+      </div>
+      <div class="book alpha">
+        <div class="book-icon">🔤</div>
+        Abecedario
+      </div>
+      <div class="book number">
+        <div class="book-icon">🔢</div>
+        Números
+      </div>
+      <div class="book math">
+        <div class="book-icon">➕</div>
+        Matemáticas
+      </div>
+    </div>
+    <div class="kit-badge">📦 4 libros + pluma + 6 repuestos</div>
+  </div>
+
+  <!-- ─────────────────── SCENE 3: BENEFICIOS (12–18s) ─────────── -->
+  <div class="scene s3">
+    <div class="hook" style="font-size:36px;margin-bottom:20px;">¿Por qué<br>funciona? 🤔</div>
+    <div class="benefits">
+      <div class="benefit">
+        <div class="benefit-icon">✍️</div>
+        <div>Mejora la escritura</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-icon">👁️</div>
+        <div>Coordinación ojo-mano</div>
+      </div>
+      <div class="benefit">
+        <div class="benefit-icon">🧠</div>
+        <div>Entrena concentración</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────── SCENE 4: CÓMO FUNCIONA (18–24s) ──────── -->
+  <div class="scene s4">
+    <div class="hook" style="font-size:34px;margin-bottom:20px;">¡Súper fácil<br>de usar! 🖊️</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        Traza los surcos mágicos
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        La tinta desaparece ✨
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        ¡Practica una y otra vez!
+      </div>
+    </div>
+    <div class="sub" style="margin-top:18px;font-size:17px;">Para niños de <strong>3+ años</strong> 👶</div>
+  </div>
+
+  <!-- ─────────────────── SCENE 5: CTA (24–30s) ────────────────── -->
+  <div class="scene s5">
+    <div class="burst">
+      <span class="star">🎁</span>
+      <span class="star">⭐</span>
+      <span class="star">🛒</span>
+      <span class="star">💥</span>
+      <span class="star">🎉</span>
+      <span class="star">✨</span>
+    </div>
+    <div class="cta-title">¡Cómpralo<br>ya! 🛍️</div>
+    <div class="cta-price">🔥 Oferta especial</div>
+    <div class="cta-btn">VER PRODUCTO →</div>
+    <div class="cta-store">📍 Sublimontes Shop</div>
+    <div style="color:rgba(255,255,255,.75);font-size:15px;margin-top:10px;font-weight:600;">Link en la bio ⬆️</div>
+  </div>
+
+  <!-- Watermark -->
+  <div class="watermark">@sublimontesshop</div>
+
+</div>
+
+<!-- ── PLAY AGAIN BUTTON (outside phone) ── -->
+<div style="position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:999">
+  <button onclick="restart()" style="
+    background:#FFD93D;
+    border:none;
+    border-radius:30px;
+    padding:12px 32px;
+    font-size:16px;
+    font-weight:900;
+    color:#333;
+    cursor:pointer;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);
+  ">▶ Reproducir de nuevo</button>
+</div>
+
+<script>
+  function restart() {
+    // Reload to restart all CSS animations
+    location.reload();
+  }
+</script>
+</body>
+</html>

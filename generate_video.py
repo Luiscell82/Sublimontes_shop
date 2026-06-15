@@ -140,22 +140,21 @@ def progress_bar(draw, total_t):
 
 def scene1(base_img, st, total_t):
     img = base_img.copy()
-    # oscurecer arriba para texto, dejar imagen visible abajo
     img = gradient_overlay(img, top_alpha=0.65, bot_alpha=0.20)
 
     sl  = ease_out(st / 0.55)
     ty  = int(lerp(-120, 55, sl))
 
     draw = ImageDraw.Draw(img)
-    text_c(draw, "¿Tu niño",    ty,       F["xl"])
-    text_c(draw, "aprende",     ty + 65,  F["xl"])
-    text_c(draw, "jugando?",    ty + 130, F["xl"], color=(255,237,61))
+    text_c(draw, "Does your kid",  ty,       F["xl"])
+    text_c(draw, "learn by",       ty + 65,  F["xl"])
+    text_c(draw, "playing?",       ty + 130, F["xl"], color=(255,237,61))
 
     sub_sl = ease_out(max(0, st - 0.5) / 0.4)
     sy_off = int(lerp(30, 0, sub_sl))
     sub_a  = sub_sl
     if sub_a > 0:
-        img = pill(img, "¡Ahora sí puede! 🎉",
+        img = pill(img, "Now they can! 🎉",
                    W//2, ty + 215 + sy_off,
                    F["md"], bg=(255,107,107,220), tc=(255,255,255))
 
@@ -175,8 +174,8 @@ def scene2(base_img, st, total_t):
     ty  = int(lerp(-80, 42, sl))
 
     draw = ImageDraw.Draw(img)
-    text_c(draw, "✨ Magic Groove",       ty,      F["md"])
-    text_c(draw, "Practice Copybook",    ty + 36, F["md"])
+    text_c(draw, "✨ Magic Groove",      ty,      F["md"])
+    text_c(draw, "Practice Copybook",   ty + 36, F["md"])
 
     # 4 badges de libros
     BOOKS = [
@@ -206,7 +205,7 @@ def scene2(base_img, st, total_t):
     kit_sl = ease_out(max(0, st-0.7)/0.35)
     ky_off = int(lerp(30,0,kit_sl))
     by_kit = by0 + 2*(bh+gap) + 14
-    img = pill(img, "📦 4 libros · pluma · 6 repuestos · grip",
+    img = pill(img, "📦 4 books · pen · 6 refills · grip",
                W//2, by_kit + ky_off, F["xs"],
                bg=(255,255,255,55), tc=(255,255,255))
 
@@ -218,9 +217,9 @@ def scene2(base_img, st, total_t):
 #   Imagen: niña escribiendo (img_learn)
 
 BENEFITS = [
-    ("✍️", "Mejora la escritura"),
-    ("👁️", "Coordinación ojo-mano"),
-    ("🧠", "Entrena concentración"),
+    ("✍️", "Improves handwriting"),
+    ("👁️", "Hand-eye coordination"),
+    ("🧠", "Builds concentration"),
 ]
 
 def scene3(base_img, st, total_t):
@@ -231,7 +230,7 @@ def scene3(base_img, st, total_t):
     ty  = int(lerp(-60, 55, sl))
 
     draw = ImageDraw.Draw(img)
-    text_c(draw, "¿Por qué funciona? 🤔", ty, F["md"])
+    text_c(draw, "Why does it work? 🤔", ty, F["md"])
 
     bh, gap = 86, 14
     by0 = ty + 68
@@ -256,9 +255,9 @@ def scene3(base_img, st, total_t):
 #   Imagen: img_teach (niña dibujando con libro)
 
 STEPS = [
-    ("1", "Traza los surcos mágicos"),
-    ("2", "La tinta desaparece ✨"),
-    ("3", "¡Practica una y otra vez!"),
+    ("1", "Trace the magic grooves"),
+    ("2", "Ink disappears ✨"),
+    ("3", "Practice again & again!"),
 ]
 
 def scene4(base_img, st, total_t):
@@ -269,8 +268,8 @@ def scene4(base_img, st, total_t):
     ty  = int(lerp(-70, 48, sl))
 
     draw = ImageDraw.Draw(img)
-    text_c(draw, "¡Súper fácil de usar! 🖊️", ty, F["md"])
-    text_c(draw, "Para niños de 3+ años 👶", ty+40, F["sm"],
+    text_c(draw, "So easy to use! 🖊️",  ty,     F["md"])
+    text_c(draw, "For kids ages 3+ 👶", ty+40,  F["sm"],
            color=(255,237,61))
 
     bh, gap = 92, 16
@@ -307,8 +306,8 @@ def scene5(base_img, st, total_t):
     ty    = int(lerp(-80, 100, sl))
 
     draw = ImageDraw.Draw(img)
-    text_c(draw, "¡Cómpralo ya! 🛍️",  ty,      F["lg"])
-    text_c(draw, "🔥 Oferta especial", ty + 58, F["md"],
+    text_c(draw, "Get yours now! 🛍️",  ty,      F["lg"])
+    text_c(draw, "🔥 Special offer",   ty + 58, F["md"],
            color=(255,237,61))
 
     # botón CTA
@@ -331,7 +330,7 @@ def scene5(base_img, st, total_t):
     iy_off  = int(lerp(20,0,info_sl))
     text_c(draw, "📍 Sublimontes Shop",
            by + btn_h + 24 + iy_off, F["sm"])
-    text_c(draw, "Link en la bio ⬆️",
+    text_c(draw, "Link in bio ⬆️",
            by + btn_h + 56 + iy_off, F["xs"],
            color=(255,255,200))
     text_c(draw, "@sublimontesshop",

@@ -1,376 +1,389 @@
 """
-Genera tiktok_promo.mp4 – video promocional 30 s, 390×844 px (9:16)
-Escenas:
-  S1  0–6 s  Hook "¿Tu niño aprende jugando?"
-  S2  6–12 s Producto: 4 libros + kit
-  S3  12–18 s Beneficios
-  S4  18–24 s Cómo funciona
-  S5  24–30 s CTA + tienda
+Genera tiktok_promo.mp4 con las imágenes reales del producto.
+  S1  0–6 s  Hook  → img_learn.png  (niña escribiendo)
+  S2  6–12 s Kit   → img_kit.png    (4 libros + accesorios)
+  S3 12–18 s Bene  → img_learn.png  (beneficios sobre foto)
+  S4 18–24 s Uso   → img_teach.png  (cómo funciona)
+  S5 24–30 s CTA   → img_book.png   (portada libro)
 """
 
-from PIL import Image, ImageDraw, ImageFont
-import numpy as np
-import math, os, sys
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import numpy as np, math, os
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 
-# ── CONFIG ──────────────────────────────────────────────────────────────────
-W, H   = 390, 844
-FPS    = 24
-TOTAL  = 30          # segundos
-FRAMES = FPS * TOTAL # 720 frames
+# ── CONFIG ────────────────────────────────────────────────────────────────────
+W, H     = 390, 844
+FPS      = 24
+TOTAL    = 30
+FRAMES   = FPS * TOTAL
+SCENE_DUR = 6
+FADE      = 0.40
+BASE_DIR  = "/home/user/Sublimontes_shop"
 
-SCENE_DUR = 6        # segundos por escena
-FADE      = 0.35     # segundos fade in/out
+# ── LOAD & PREP IMAGES ────────────────────────────────────────────────────────
+def prep(path):
+    """Recorta centro y escala a WxH."""
+    img = Image.open(path).convert("RGB")
+    iw, ih = img.size
+    # crop centro manteniendo proporción
+    target_ratio = W / H
+    src_ratio    = iw / ih
+    if src_ratio > target_ratio:
+        new_w = int(ih * target_ratio)
+        left  = (iw - new_w) // 2
+        img   = img.crop((left, 0, left + new_w, ih))
+    else:
+        new_h = int(iw / target_ratio)
+        top   = (ih - new_h) // 2
+        img   = img.crop((0, top, iw, top + new_h))
+    return img.resize((W, H), Image.LANCZOS)
 
-# ── PALETA ──────────────────────────────────────────────────────────────────
-C = {
-    "white":   (255, 255, 255),
-    "yellow":  (255, 217,  61),
-    "pink":    (255, 107, 107),
-    "blue":    (77,  150, 255),
-    "green":   (107, 203, 119),
-    "purple":  (132,  94, 194),
-    "orange":  (255, 150, 113),
-    "teal":    (  0, 201, 167),
-    "navy":    (  0, 129, 207),
-    "dark":    ( 40,  40,  40),
-    "shadow":  (  0,   0,   0,  80),
-    "overlay": (255, 255, 255,  55),
+IMGS = {
+    "learn": prep(f"{BASE_DIR}/img_learn.png"),
+    "kit":   prep(f"{BASE_DIR}/img_kit.png"),
+    "teach": prep(f"{BASE_DIR}/img_teach.png"),
+    "book":  prep(f"{BASE_DIR}/img_book.png"),
 }
 
-GRAD = {
-    1: [(255,217,61),  (255,107,107)],
-    2: [(107,203,119), (77,150,255)],
-    3: [(132,94,194),  (255,150,113)],
-    4: [(0,129,207),   (0,201,167)],
-    5: [(255,107,107), (255,217,61)],
-}
-
-# ── FONTS ───────────────────────────────────────────────────────────────────
-def load_font(size, bold=False):
+# ── FONTS ─────────────────────────────────────────────────────────────────────
+def font(size, bold=True):
     paths = [
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold
-            else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if bold
-            else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+        f"/usr/share/fonts/truetype/dejavu/DejaVuSans-{'Bold' if bold else ''}.ttf",
+        f"/usr/share/fonts/truetype/liberation/LiberationSans-{'Bold' if bold else 'Regular'}.ttf",
     ]
     for p in paths:
         if os.path.exists(p):
-            return ImageFont.truetype(p, size)
+            try: return ImageFont.truetype(p, size)
+            except: pass
     return ImageFont.load_default()
 
 F = {
-    "title":   load_font(52, bold=True),
-    "big":     load_font(42, bold=True),
-    "mid":     load_font(30, bold=True),
-    "sub":     load_font(22, bold=True),
-    "small":   load_font(18, bold=True),
-    "emoji":   load_font(36),
+    "xl":   font(54),
+    "lg":   font(42),
+    "md":   font(30),
+    "sm":   font(22),
+    "xs":   font(17),
 }
 
-# ── HELPERS ─────────────────────────────────────────────────────────────────
-def gradient(img, top_color, bot_color):
-    draw = ImageDraw.Draw(img)
-    for y in range(H):
-        t = y / H
-        r = int(top_color[0] + (bot_color[0]-top_color[0])*t)
-        g = int(top_color[1] + (bot_color[1]-top_color[1])*t)
-        b = int(top_color[2] + (bot_color[2]-top_color[2])*t)
-        draw.line([(0,y),(W,y)], fill=(r,g,b))
+# ── HELPERS ───────────────────────────────────────────────────────────────────
+def ease_out(t):
+    t = max(0.0, min(1.0, t))
+    return 1 - (1 - t) ** 3
 
-def text_center(draw, text, y, font, color=(255,255,255), shadow=True):
-    bbox = draw.textbbox((0,0), text, font=font)
-    tw = bbox[2]-bbox[0]
-    x = (W - tw) // 2
-    if shadow:
-        draw.text((x+3, y+3), text, font=font, fill=(0,0,0,100))
-    draw.text((x, y), text, font=font, fill=color)
-    return bbox[3]-bbox[1]   # height
+def lerp(a, b, t): return a + (b - a) * t
 
-def text_center_lines(draw, lines, y_start, font, color=(255,255,255), gap=8):
-    cy = y_start
-    for line in lines:
-        h = text_center(draw, line, cy, font, color)
-        cy += h + gap
-    return cy
-
-def rounded_rect(img, x1,y1,x2,y2, radius, fill):
-    overlay = Image.new("RGBA", img.size, (0,0,0,0))
-    d = ImageDraw.Draw(overlay)
-    d.rounded_rectangle([x1,y1,x2,y2], radius=radius, fill=fill)
-    img.paste(Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB"),
-              mask=None)
-    # simpler:
-    base = img.convert("RGBA")
-    d2   = ImageDraw.Draw(base)
-    d2.rounded_rectangle([x1,y1,x2,y2], radius=radius, fill=fill)
-    return base.convert("RGB")
-
-def lerp(a,b,t): return a + (b-a)*t
-
-def ease_out(t): return 1-(1-t)**3
-
-def fade_alpha(scene_t, scene_dur, fade_dur):
-    """0..1 opacity: fade in at start, fade out at end"""
-    fi = min(1.0, scene_t / fade_dur)
-    fo = min(1.0, (scene_dur - scene_t) / fade_dur)
-    return min(fi, fo)
-
-def apply_alpha(frame, alpha):
-    if alpha >= 1.0: return frame
-    arr = np.array(frame, dtype=np.float32)
-    arr = arr * alpha
-    return Image.fromarray(arr.astype(np.uint8))
-
-def float_offset(t, amp=10, speed=1.5):
+def sine(t, amp=10, speed=1.5):
     return math.sin(t * speed * math.pi * 2) * amp
 
-# ── PROGRESS BAR ─────────────────────────────────────────────────────────────
-def draw_progress(img, total_t):
-    draw = ImageDraw.Draw(img)
-    bh = 5
-    draw.rectangle([0,0,W,bh], fill=(255,255,255,40))
-    pw = int(W * (total_t / TOTAL))
-    draw.rectangle([0,0,pw,bh], fill=C["yellow"])
+def fade_alpha(st, dur=SCENE_DUR, fade=FADE):
+    return min(1.0, st / fade, (dur - st) / fade)
 
-# ── SCENE 1: HOOK ────────────────────────────────────────────────────────────
-EMOJIS_S1 = ["⭐","🎨","✏️","📚","🌟","🖊️"]
-EMOJI_POS  = [(30,80),(300,100),(20,400),(310,420),(50,600),(310,580)]
+def dark_overlay(img, alpha=0.52):
+    """Capa oscura semitransparente sobre la imagen."""
+    ov = Image.new("RGB", (W, H), (0, 0, 0))
+    return Image.blend(img, ov, alpha)
 
-def scene1(img, st, alpha):
-    draw = ImageDraw.Draw(img)
-    # floating emojis
-    for i,(em,(ex,ey)) in enumerate(zip(EMOJIS_S1,EMOJI_POS)):
-        fo = float_offset(st, amp=12, speed=0.8+i*0.1)
-        try:
-            draw.text((ex, ey+fo), em, font=F["emoji"], fill=C["white"])
-        except Exception:
-            pass
+def gradient_overlay(img, top_alpha=0.0, bot_alpha=0.75):
+    """Gradiente negro arriba/abajo para legibilidad del texto."""
+    ov  = img.convert("RGBA")
+    lyr = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d   = ImageDraw.Draw(lyr)
+    for y in range(H):
+        t = y / H
+        a = int(lerp(top_alpha, bot_alpha, t) * 255)
+        d.line([(0, y), (W, y)], fill=(0, 0, 0, a))
+    return Image.alpha_composite(ov, lyr).convert("RGB")
 
-    # main text – slides in
-    slide = ease_out(min(1.0, st / 0.5))
-    ty = int(lerp(H*0.5, H*0.25, slide))
+def rounded_rect_rgba(img, x1, y1, x2, y2, r, fill_rgba):
+    base = img.convert("RGBA")
+    lyr  = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d    = ImageDraw.Draw(lyr)
+    d.rounded_rectangle([x1, y1, x2, y2], radius=r, fill=fill_rgba)
+    return Image.alpha_composite(base, lyr).convert("RGB")
 
-    text_center(draw, "¿Tu niño", ty,        F["title"])
-    text_center(draw, "aprende",  ty+62,      F["title"])
-    text_center(draw, "jugando?", ty+124,     F["title"], color=C["yellow"])
-    text_center(draw, "¡Ahora sí puede! 🎉", ty+200, F["mid"])
+def text_c(draw, text, y, fnt, color=(255,255,255), shadow=True, shadow_alpha=130):
+    bbox = draw.textbbox((0,0), text, font=fnt)
+    tw = bbox[2] - bbox[0]
+    x  = (W - tw) // 2
+    if shadow:
+        draw.text((x+3, y+4), text, font=fnt, fill=(0,0,0,shadow_alpha))
+    draw.text((x, y), text, font=fnt, fill=color)
+    return bbox[3] - bbox[1]
 
-# ── SCENE 2: PRODUCTO ────────────────────────────────────────────────────────
-BOOKS = [
-    ("🎨", "Dibujo",       (255,107,107)),
-    ("🔤", "Abecedario",   ( 77,150,255)),
-    ("🔢", "Números",      (255,217, 61), (40,40,40)),
-    ("➕", "Matemáticas",  (107,203,119)),
-]
+def text_at(draw, text, x, y, fnt, color=(255,255,255), shadow=True):
+    if shadow:
+        draw.text((x+2, y+3), text, font=fnt, fill=(0,0,0,110))
+    draw.text((x, y), text, font=fnt, fill=color)
 
-def scene2(img, st, alpha):
-    draw = ImageDraw.Draw(img)
-    slide = ease_out(min(1.0, st / 0.45))
-
-    # title
-    ty = int(lerp(-60, 60, slide))
-    text_center(draw, "✨ Magic Groove", ty,    F["mid"])
-    text_center(draw, "Practice Copybook", ty+36, F["mid"])
-
-    # books grid
-    pad, gap = 30, 12
-    bw = (W - pad*2 - gap)//2
-    bh = 160
-    by0 = 140
-    for i, book in enumerate(BOOKS):
-        em, label, fill = book[0], book[1], book[2]
-        txt_color = book[3] if len(book)>3 else (255,255,255)
-        col = i % 2
-        row = i // 2
-        x1 = pad + col*(bw+gap)
-        y1 = by0 + row*(bh+gap)
-        x2, y2 = x1+bw, y1+bh
-        delay = ease_out(min(1.0, max(0, st-i*0.12)/0.4))
-        # slide each book from below
-        oy = int(lerp(80, 0, delay))
-        tmp = img.copy()
-        tmp = rounded_rect(tmp, x1, y1+oy, x2, y2+oy, 18, fill)
-        # blend
-        img.paste(tmp)
-        draw = ImageDraw.Draw(img)
-        try:
-            draw.text((x1+(bw//2)-18, y1+20+oy), em, font=F["emoji"], fill=txt_color)
-        except:
-            pass
-        text_center_at(draw, label, y1+80+oy, x1, x2, F["sub"], txt_color)
-
-    # kit badge
-    ky = by0 + 2*bh + 2*gap + 16
-    badge_slide = ease_out(min(1.0, max(0, st-0.6)/0.35))
-    ky_off = int(lerp(40,0,badge_slide))
-    img = rounded_rect(img, 40, ky+ky_off, W-40, ky+52+ky_off, 26,
-                        (255,255,255,50))
-    draw = ImageDraw.Draw(img)
-    text_center(draw, "📦 4 libros + pluma + 6 repuestos",
-                ky+12+ky_off, F["small"])
+def pill(img, text, cx, cy, fnt, bg=(255,217,61,220), tc=(30,30,30)):
+    """Pastilla con texto centrado en (cx,cy)."""
+    d    = ImageDraw.Draw(img)
+    bbox = d.textbbox((0,0), text, font=fnt)
+    tw, th = bbox[2]-bbox[0], bbox[3]-bbox[1]
+    pad = 14
+    x1, y1 = cx - tw//2 - pad, cy - th//2 - 8
+    x2, y2 = cx + tw//2 + pad, cy + th//2 + 8
+    img = rounded_rect_rgba(img, x1, y1, x2, y2, 28, bg)
+    d   = ImageDraw.Draw(img)
+    d.text((cx - tw//2, cy - th//2), text, font=fnt, fill=tc)
     return img
 
-def text_center_at(draw, text, y, x1, x2, font, color):
-    bbox = draw.textbbox((0,0), text, font=font)
-    tw = bbox[2]-bbox[0]
-    cx = x1 + ((x2-x1)-tw)//2
-    draw.text((cx+2,y+2), text, font=font, fill=(0,0,0,80))
-    draw.text((cx, y),    text, font=font, fill=color)
+def progress_bar(draw, total_t):
+    draw.rectangle([0, 0, W, 5], fill=(255,255,255,40))
+    pw = int(W * total_t / TOTAL)
+    if pw > 0:
+        draw.rectangle([0, 0, pw, 5], fill=(255,217,61))
 
-# ── SCENE 3: BENEFICIOS ──────────────────────────────────────────────────────
+# ── SCENE 1: HOOK ─────────────────────────────────────────────────────────────
+#   Imagen: niña escribiendo (img_learn)
+#   Texto:  "¿Tu niño aprende  jugando?" + subtítulo
+
+def scene1(base_img, st, total_t):
+    img = base_img.copy()
+    # oscurecer arriba para texto, dejar imagen visible abajo
+    img = gradient_overlay(img, top_alpha=0.65, bot_alpha=0.20)
+
+    sl  = ease_out(st / 0.55)
+    ty  = int(lerp(-120, 55, sl))
+
+    draw = ImageDraw.Draw(img)
+    text_c(draw, "¿Tu niño",    ty,       F["xl"])
+    text_c(draw, "aprende",     ty + 65,  F["xl"])
+    text_c(draw, "jugando?",    ty + 130, F["xl"], color=(255,237,61))
+
+    sub_sl = ease_out(max(0, st - 0.5) / 0.4)
+    sy_off = int(lerp(30, 0, sub_sl))
+    sub_a  = sub_sl
+    if sub_a > 0:
+        img = pill(img, "¡Ahora sí puede! 🎉",
+                   W//2, ty + 215 + sy_off,
+                   F["md"], bg=(255,107,107,220), tc=(255,255,255))
+
+    draw = ImageDraw.Draw(img)
+    progress_bar(draw, total_t)
+    return img
+
+# ── SCENE 2: PRODUCTO / KIT ───────────────────────────────────────────────────
+#   Imagen: kit completo (img_kit) — muestra los 4 libros + accesorios
+#   Texto:  título + badges de los libros + kit badge
+
+def scene2(base_img, st, total_t):
+    img = base_img.copy()
+    img = gradient_overlay(img, top_alpha=0.70, bot_alpha=0.55)
+
+    sl  = ease_out(st / 0.5)
+    ty  = int(lerp(-80, 42, sl))
+
+    draw = ImageDraw.Draw(img)
+    text_c(draw, "✨ Magic Groove",       ty,      F["md"])
+    text_c(draw, "Practice Copybook",    ty + 36, F["md"])
+
+    # 4 badges de libros
+    BOOKS = [
+        ("🎨 Dibujo",       (255, 90, 90, 210)),
+        ("🔤 Abecedario",   ( 60,130,255, 210)),
+        ("🔢 Números",      (255,200, 40, 230)),
+        ("➕ Matemáticas",  ( 80,200,100, 210)),
+    ]
+    bw, bh, gap = 155, 52, 10
+    bx0 = (W - (bw*2 + gap)) // 2
+    by0 = ty + 82
+    for i,(label,bg) in enumerate(BOOKS):
+        delay = ease_out(max(0, st - 0.15 - i*0.13) / 0.35)
+        col, row = i % 2, i // 2
+        bx = bx0 + col*(bw+gap)
+        by = by0 + row*(bh+gap)
+        oy = int(lerp(40, 0, delay))
+        tc = (30,30,30) if i==2 else (255,255,255)
+        img = rounded_rect_rgba(img, bx, by+oy, bx+bw, by+bh+oy, 16, bg)
+        draw = ImageDraw.Draw(img)
+        bbox = draw.textbbox((0,0), label, font=F["sm"])
+        tw = bbox[2]-bbox[0]
+        draw.text(((W//2 - bw//2 - gap//2 + col*(bw+gap) + (bw-tw)//2),
+                   by + 14 + oy), label, font=F["sm"], fill=tc)
+
+    # badge kit
+    kit_sl = ease_out(max(0, st-0.7)/0.35)
+    ky_off = int(lerp(30,0,kit_sl))
+    by_kit = by0 + 2*(bh+gap) + 14
+    img = pill(img, "📦 4 libros · pluma · 6 repuestos · grip",
+               W//2, by_kit + ky_off, F["xs"],
+               bg=(255,255,255,55), tc=(255,255,255))
+
+    draw = ImageDraw.Draw(img)
+    progress_bar(draw, total_t)
+    return img
+
+# ── SCENE 3: BENEFICIOS ───────────────────────────────────────────────────────
+#   Imagen: niña escribiendo (img_learn)
+
 BENEFITS = [
-    ("✍️", "Mejora la escritura",       (255,255,255,50)),
-    ("👁️", "Coordinación ojo-mano",     (255,255,255,50)),
-    ("🧠", "Entrena la concentración",  (255,255,255,50)),
+    ("✍️", "Mejora la escritura"),
+    ("👁️", "Coordinación ojo-mano"),
+    ("🧠", "Entrena concentración"),
 ]
 
-def scene3(img, st, alpha):
-    draw = ImageDraw.Draw(img)
-    slide = ease_out(min(1.0, st/0.4))
-    ty = int(lerp(-50, 70, slide))
-    text_center(draw, "¿Por qué funciona? 🤔", ty, F["mid"])
+def scene3(base_img, st, total_t):
+    img = base_img.copy()
+    img = gradient_overlay(img, top_alpha=0.75, bot_alpha=0.50)
 
-    by0 = 180
-    bh  = 90
-    gap = 16
-    for i,(em,label,_) in enumerate(BENEFITS):
-        delay = ease_out(min(1.0, max(0, st - 0.2 - i*0.2)/0.4))
-        ox = int(lerp(-W, 0, delay))
-        y1 = by0 + i*(bh+gap)
-        img = rounded_rect(img, 24+ox, y1, W-24+ox, y1+bh, 22, (255,255,255,55))
-        draw = ImageDraw.Draw(img)
+    sl  = ease_out(st / 0.45)
+    ty  = int(lerp(-60, 55, sl))
+
+    draw = ImageDraw.Draw(img)
+    text_c(draw, "¿Por qué funciona? 🤔", ty, F["md"])
+
+    bh, gap = 86, 14
+    by0 = ty + 68
+    for i,(em,label) in enumerate(BENEFITS):
+        delay = ease_out(max(0, st - 0.2 - i*0.18) / 0.38)
+        ox    = int(lerp(-W, 0, delay))
+        y1    = by0 + i*(bh+gap)
+        img   = rounded_rect_rgba(img, 22+ox, y1, W-22+ox, y1+bh, 20,
+                                  (255,255,255,55))
+        draw  = ImageDraw.Draw(img)
         try:
-            draw.text((44+ox, y1+22), em, font=F["emoji"], fill=(255,255,255))
+            draw.text((42+ox, y1+24), em, font=F["md"], fill=(255,255,255))
         except:
             pass
-        text_center_at(draw, label, y1+28, 100+ox, W-24+ox, F["sub"], (255,255,255))
+        text_at(draw, label, 92+ox, y1+28, F["sm"])
+
+    draw = ImageDraw.Draw(img)
+    progress_bar(draw, total_t)
     return img
 
-# ── SCENE 4: CÓMO FUNCIONA ───────────────────────────────────────────────────
+# ── SCENE 4: CÓMO FUNCIONA ────────────────────────────────────────────────────
+#   Imagen: img_teach (niña dibujando con libro)
+
 STEPS = [
     ("1", "Traza los surcos mágicos"),
     ("2", "La tinta desaparece ✨"),
     ("3", "¡Practica una y otra vez!"),
 ]
 
-def scene4(img, st, alpha):
-    draw = ImageDraw.Draw(img)
-    slide = ease_out(min(1.0, st/0.4))
-    ty = int(lerp(-50, 60, slide))
-    text_center(draw, "¡Súper fácil de usar! 🖊️", ty, F["mid"])
+def scene4(base_img, st, total_t):
+    img = base_img.copy()
+    img = gradient_overlay(img, top_alpha=0.72, bot_alpha=0.45)
 
-    by0 = 170
-    bh  = 96
-    gap = 18
+    sl  = ease_out(st / 0.45)
+    ty  = int(lerp(-70, 48, sl))
+
+    draw = ImageDraw.Draw(img)
+    text_c(draw, "¡Súper fácil de usar! 🖊️", ty, F["md"])
+    text_c(draw, "Para niños de 3+ años 👶", ty+40, F["sm"],
+           color=(255,237,61))
+
+    bh, gap = 92, 16
+    by0 = ty + 96
     for i,(num,label) in enumerate(STEPS):
-        delay = ease_out(min(1.0, max(0, st - 0.15 - i*0.2)/0.4))
-        ox = int(lerp(-W, 0, delay))
-        y1 = by0 + i*(bh+gap)
-        img = rounded_rect(img, 24+ox, y1, W-24+ox, y1+bh, 22, (255,255,255,50))
-        draw = ImageDraw.Draw(img)
-        # circle num
-        draw.ellipse([40+ox, y1+22, 84+ox, y1+66], fill=(255,255,255,80))
-        bbox = draw.textbbox((0,0), num, font=F["mid"])
-        nw = bbox[2]-bbox[0]
-        draw.text((62+ox-nw//2, y1+28), num, font=F["mid"], fill=(255,255,255))
-        # label
-        draw.text((100+ox, y1+30), label, font=F["sub"], fill=(255,255,255))
+        delay = ease_out(max(0, st - 0.18 - i*0.18) / 0.38)
+        ox    = int(lerp(-W, 0, delay))
+        y1    = by0 + i*(bh+gap)
+        img   = rounded_rect_rgba(img, 22+ox, y1, W-22+ox, y1+bh, 20,
+                                  (0,0,0,90))
+        draw  = ImageDraw.Draw(img)
+        # círculo numerado
+        draw.ellipse([38+ox, y1+22, 82+ox, y1+66],
+                     fill=(255,107,107,230))
+        bbox = draw.textbbox((0,0), num, font=F["md"])
+        nw   = bbox[2]-bbox[0]
+        draw.text((60+ox-nw//2, y1+28), num, font=F["md"],
+                  fill=(255,255,255))
+        text_at(draw, label, 98+ox, y1+30, F["sm"])
 
-    # subtitle
-    sub_slide = ease_out(min(1.0, max(0, st-0.8)/0.3))
-    sy = by0 + 3*(bh+gap) + 10
-    sy_off = int(lerp(30,0,sub_slide))
-    text_center(draw, "Para niños de 3+ años 👶", sy+sy_off, F["sub"])
+    draw = ImageDraw.Draw(img)
+    progress_bar(draw, total_t)
     return img
 
-# ── SCENE 5: CTA ─────────────────────────────────────────────────────────────
-EMOJIS_S5 = ["🎁","⭐","🛒","💥","🎉","✨"]
-EMOJI_POS5 = [(25,90),(300,110),(20,420),(305,440),(50,620),(305,600)]
+# ── SCENE 5: CTA ──────────────────────────────────────────────────────────────
+#   Imagen: portada del libro (img_book)
 
-def scene5(img, st, alpha):
+def scene5(base_img, st, total_t):
+    img = base_img.copy()
+    img = gradient_overlay(img, top_alpha=0.60, bot_alpha=0.82)
+
+    pulse = 1.0 + 0.04 * math.sin(st * math.pi * 2.5)
+    sl    = ease_out(st / 0.45)
+    ty    = int(lerp(-80, 100, sl))
+
     draw = ImageDraw.Draw(img)
-    # floating emojis
-    for i,(em,(ex,ey)) in enumerate(zip(EMOJIS_S5,EMOJI_POS5)):
-        fo = float_offset(st, amp=12, speed=0.9+i*0.1)
-        try:
-            draw.text((ex,ey+fo), em, font=F["emoji"], fill=(255,255,255))
-        except:
-            pass
+    text_c(draw, "¡Cómpralo ya! 🛍️",  ty,      F["lg"])
+    text_c(draw, "🔥 Oferta especial", ty + 58, F["md"],
+           color=(255,237,61))
 
-    pulse = 1.0 + 0.04*math.sin(st * math.pi * 2.5)
-    slide = ease_out(min(1.0, st/0.45))
+    # botón CTA
+    btn_w = int(288 * pulse)
+    btn_h = int(62  * pulse)
+    bx    = (W - btn_w) // 2
+    by    = ty + 120
+    btn_sl = ease_out(max(0, st-0.5)/0.35)
+    by_off = int(lerp(30,0,btn_sl))
+    img   = rounded_rect_rgba(img, bx, by+by_off, bx+btn_w, by+btn_h+by_off,
+                               32, (255,255,255,240))
+    draw  = ImageDraw.Draw(img)
+    bbox  = draw.textbbox((0,0), "VER PRODUCTO →", font=F["sm"])
+    tw    = bbox[2]-bbox[0]
+    draw.text(((W-tw)//2, by+16+by_off), "VER PRODUCTO →",
+              font=F["sm"], fill=(255,90,90))
 
-    ty = int(lerp(H*0.5, 120, slide))
-    text_center(draw, "¡Cómpralo ya! 🛍️", ty,    F["big"])
-    text_center(draw, "🔥 Oferta especial",        ty+64, F["mid"],
-                color=C["yellow"])
+    # info tienda
+    info_sl = ease_out(max(0, st-0.65)/0.35)
+    iy_off  = int(lerp(20,0,info_sl))
+    text_c(draw, "📍 Sublimontes Shop",
+           by + btn_h + 24 + iy_off, F["sm"])
+    text_c(draw, "Link en la bio ⬆️",
+           by + btn_h + 56 + iy_off, F["xs"],
+           color=(255,255,200))
+    text_c(draw, "@sublimontesshop",
+           by + btn_h + 84 + iy_off, F["xs"],
+           color=(255,255,200))
 
-    # CTA button
-    btn_w, btn_h = int(280*pulse), int(62*pulse)
-    bx = (W-btn_w)//2
-    btn_y = ty + 140
-    img = rounded_rect(img, bx, btn_y, bx+btn_w, btn_y+btn_h, 34, (255,255,255))
     draw = ImageDraw.Draw(img)
-    bbox = draw.textbbox((0,0), "VER PRODUCTO →", font=F["sub"])
-    tw = bbox[2]-bbox[0]
-    draw.text(((W-tw)//2, btn_y+16), "VER PRODUCTO →",
-              font=F["sub"], fill=C["pink"])
-
-    # store
-    text_center(draw, "📍 Sublimontes Shop",   btn_y+82,  F["sub"])
-    text_center(draw, "Link en la bio ⬆️",     btn_y+116, F["small"],
-                color=(255,255,255,200))
-    text_center(draw, "@sublimontesshop",       btn_y+148, F["small"],
-                color=(255,255,255,180))
+    progress_bar(draw, total_t)
     return img
 
-# ── WATERMARK ────────────────────────────────────────────────────────────────
-def draw_watermark(img, draw):
-    text_center(draw, "@sublimontesshop", H-30, F["small"],
-                color=(255,255,255,150), shadow=False)
+# ── SCENE MAP ─────────────────────────────────────────────────────────────────
+SCENE_CFG = [
+    (scene1, "learn"),
+    (scene2, "kit"),
+    (scene3, "learn"),
+    (scene4, "teach"),
+    (scene5, "book"),
+]
 
-# ── FRAME RENDERER ───────────────────────────────────────────────────────────
-SCENE_FNS = [scene1, scene2, scene3, scene4, scene5]
+# ── RENDER FRAME ─────────────────────────────────────────────────────────────
+def render_frame(idx):
+    total_t   = idx / FPS
+    s_idx     = min(int(total_t // SCENE_DUR), 4)
+    st        = total_t - s_idx * SCENE_DUR
+    alpha     = fade_alpha(st)
 
-def render_frame(frame_idx):
-    total_t   = frame_idx / FPS
-    scene_idx = min(int(total_t // SCENE_DUR), 4)
-    scene_t   = total_t - scene_idx * SCENE_DUR
-    alpha     = fade_alpha(scene_t, SCENE_DUR, FADE)
+    fn, img_key = SCENE_CFG[s_idx]
+    frame = fn(IMGS[img_key], st, total_t)
 
-    img  = Image.new("RGB", (W, H), (30,30,30))
-    top, bot = GRAD[scene_idx+1]
-    gradient(img, top, bot)
+    # watermark
+    draw = ImageDraw.Draw(frame)
+    draw.text((14, H-28), "@sublimontesshop", font=F["xs"],
+              fill=(255,255,255,160))
 
-    draw = ImageDraw.Draw(img)
-    ret  = SCENE_FNS[scene_idx](img, scene_t, alpha)
-    if ret is not None:
-        img = ret
-        draw = ImageDraw.Draw(img)
-
-    draw_progress(img, total_t)
-    draw_watermark(img, draw)
-
-    # alpha fade
+    # fade in/out
     if alpha < 0.98:
-        overlay = Image.new("RGB", (W, H), (0,0,0))
-        img = Image.blend(overlay, img, alpha)
+        black = Image.new("RGB", (W, H), (0,0,0))
+        frame = Image.blend(black, frame, alpha)
 
-    return np.array(img)
+    return np.array(frame)
 
 # ── MAIN ─────────────────────────────────────────────────────────────────────
-print(f"Generando {FRAMES} frames ({TOTAL}s a {FPS}fps)…")
+print(f"Generando {FRAMES} frames con imágenes reales…")
 frames = []
 for i in range(FRAMES):
-    if i % (FPS*2) == 0:
-        print(f"  frame {i}/{FRAMES}  ({i//FPS}s)", flush=True)
+    if i % (FPS * 2) == 0:
+        print(f"  {i}/{FRAMES}  ({i//FPS}s)", flush=True)
     frames.append(render_frame(i))
 
-out_path = "/home/user/Sublimontes_shop/tiktok_promo.mp4"
+out = f"{BASE_DIR}/tiktok_promo.mp4"
 print("Compilando MP4…")
 clip = ImageSequenceClip(frames, fps=FPS)
-clip.write_videofile(out_path, codec="libx264", fps=FPS,
-                     audio=False, logger=None,
+clip.write_videofile(out, codec="libx264", fps=FPS, audio=False, logger=None,
                      ffmpeg_params=["-pix_fmt","yuv420p","-crf","18"])
-print(f"✅ Listo: {out_path}")
+print(f"✅  {out}")
